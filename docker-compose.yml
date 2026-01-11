@@ -1,0 +1,49 @@
+services:
+  # Base de Datos 1: PostgreSQL
+  db-postgres:
+    image: postgres:15-alpine
+    container_name: uce-postgres
+    environment:
+      POSTGRES_USER: uce_admin
+      POSTGRES_PASSWORD: uce_password
+      POSTGRES_DB: uce_users_db
+    ports:
+      - "5433:5432"
+
+  # Base de Datos 2: MongoDB
+  db-mongo:
+    image: mongo:latest
+    container_name: uce-mongo
+    ports:
+      - "27017:27017"
+
+  # Base de Datos 3: Redis
+  db-redis:
+    image: redis:alpine
+    container_name: uce-redis
+    ports:
+      - "6379:6379"
+
+  # MENSAJERÍA: Zookeeper (Versión oficial de Confluent)
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: uce-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  # MENSAJERÍA: Kafka (Versión oficial de Confluent)
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: uce-kafka
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1

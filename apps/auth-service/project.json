@@ -1,0 +1,58 @@
+{
+    "name": "@org/auth-service",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "apps/auth-service/src",
+    "projectType": "application",
+    "targets": {
+        "build": {
+            "executor": "@nx/webpack:webpack",
+            "outputs": [
+                "{options.outputPath}"
+            ],
+            "defaultConfiguration": "production",
+            "options": {
+                "target": "node",
+                "compiler": "tsc",
+                "outputPath": "dist/apps/auth-service", // <--- DEBE SER ESTA
+                "main": "apps/auth-service/src/main.ts",
+                "tsConfig": "apps/auth-service/tsconfig.app.json",
+                "assets": [
+                    "apps/auth-service/src/assets",
+                    {
+                        "input": "apps/auth-service/src/assets",
+                        "glob": "**/*.proto",
+                        "output": "assets"
+                    }
+                ],
+                "webpackConfig": "apps/auth-service/webpack.config.js"
+            },
+            "configurations": {
+                "development": {
+                    "optimization": false,
+                    "extractLicenses": false,
+                    "inspect": false
+                },
+                "production": {
+                    "optimization": true,
+                    "extractLicenses": true,
+                    "inspect": false
+                }
+            }
+        },
+        "serve": {
+            "executor": "@nx/js:node",
+            "defaultConfiguration": "development",
+            "options": {
+                "buildTarget": "@org/auth-service:build"
+            },
+            "configurations": {
+                "development": {
+                    "buildTarget": "@org/auth-service:build:development"
+                },
+                "production": {
+                    "buildTarget": "@org/auth-service:build:production"
+                }
+            }
+        }
+    }
+}

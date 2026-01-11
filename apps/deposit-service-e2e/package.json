@@ -1,0 +1,27 @@
+{
+  "name": "@org/deposit-service-e2e",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "name": "deposit-service-e2e",
+    "implicitDependencies": [
+      "deposit-service"
+    ],
+    "targets": {
+      "e2e": {
+        "executor": "@nx/jest:jest",
+        "outputs": [
+          "{projectRoot}/test-output/jest/coverage"
+        ],
+        "options": {
+          "jestConfig": "apps/deposit-service-e2e/jest.config.cts",
+          "passWithNoTests": true
+        },
+        "dependsOn": [
+          "deposit-service:build",
+          "deposit-service:serve"
+        ]
+      }
+    }
+  }
+}

@@ -1,12 +1,16 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "namedInputs": {
-    "default": [
-      "{projectRoot}/**/*",
-      "sharedGlobals"
-    ],
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
     "production": [
-      "default"
+      "default",
+      "!{projectRoot}/.eslintrc.json",
+      "!{projectRoot}/eslint.config.mjs",
+      "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
+      "!{projectRoot}/tsconfig.spec.json",
+      "!{projectRoot}/jest.config.[jt]s",
+      "!{projectRoot}/src/test-setup.[jt]s",
+      "!{projectRoot}/test-setup.[jt]s"
     ],
     "sharedGlobals": []
   },
@@ -24,7 +28,48 @@
           "watchDepsName": "watch-deps"
         }
       }
+    },
+    {
+      "plugin": "@nx/webpack/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "serveTargetName": "serve",
+        "previewTargetName": "preview",
+        "buildDepsTargetName": "build-deps",
+        "watchDepsTargetName": "watch-deps",
+        "serveStaticTargetName": "serve-static"
+      }
+    },
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      }
+    },
+    {
+      "plugin": "@nx/jest/plugin",
+      "options": {
+        "targetName": "test"
+      },
+      "exclude": [
+        "apps/api-gateway-e2e/**/*",
+        "apps/deposit-service-e2e/**/*",
+        "apps/auth-service-e2e/**/*",
+        "apps/user-service-e2e/**/*",
+        "apps/notification-service-e2e/**/*",
+        "apps/audit-service-e2e/**/*",
+        "apps/iot-gateway-e2e/**/*",
+        "apps/reward-service-e2e/**/*",
+        "apps/report-service-e2e/**/*",
+        "apps/health-service-e2e/**/*",
+        "apps/deposit-service-e2e/**/*"
+      ]
     }
   ],
-  "nxCloudId": "695e8b2084f0a00ee2dc0a2e"
+  "nxCloudId": "695e8b2084f0a00ee2dc0a2e",
+  "targetDefaults": {
+    "test": {
+      "dependsOn": ["^build"]
+    }
+  }
 }
