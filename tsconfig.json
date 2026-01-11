@@ -62,6 +62,12 @@
     },
     {
       "path": "./apps/health-service"
+    },
+    {
+      "path": "./apps/web-dashboard-e2e"
+    },
+    {
+      "path": "./apps/web-dashboard"
     }
   ]
 }
