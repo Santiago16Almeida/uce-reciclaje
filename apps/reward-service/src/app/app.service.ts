@@ -14,8 +14,13 @@ export class AppService {
 
   canjear(puntosUsuario: number, rewardId: number) {
     const premio = this.recompensas.find(r => r.id === rewardId);
+
     if (premio && puntosUsuario >= premio.costo) {
-      return { status: 'EXITOSO', mensaje: `Has canjeado un ${premio.nombre}` };
+      return {
+        status: 'EXITOSO',
+        mensaje: `Has canjeado un ${premio.nombre}`,
+        costo: premio.costo // <--- Importante devolver el costo
+      };
     }
     return { status: 'ERROR', mensaje: 'Puntos insuficientes' };
   }

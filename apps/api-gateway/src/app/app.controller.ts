@@ -1,8 +1,8 @@
-import { Controller, Get, Inject, OnModuleInit, Query, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Inject, OnModuleInit, Query, UnauthorizedException } from '@nestjs/common';
 import { ClientProxy, ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 
-@Controller()
+@Controller() // <--- VACÍO, porque main.ts ya pone el /api
 export class AppController implements OnModuleInit {
   private authGrpcService: any;
 
@@ -28,80 +28,94 @@ export class AppController implements OnModuleInit {
     if (!this.authGrpcService) {
       try {
         this.authGrpcService = this.authClient.getService<any>('AuthService');
-        console.log('✅ Gateway: Servicio gRPC de Auth cargado');
       } catch (error) {
-        console.error('❌ Gateway: Error cargando gRPC:', error.message);
+        console.error('❌ Gateway: Error gRPC:', error.message);
       }
     }
     return this.authGrpcService;
   }
 
-  @Get('auth/login-test')
-  async loginTest() {
+  // --- RUTAS DE AUTENTICACIÓN ---
+
+  @Post('auth/register') // Queda como: /api/auth/register
+  async register(@Body() userData: any) {
     try {
-      return await firstValueFrom(
-        this.authTcpClient.send({ cmd: 'create_session' }, {
-          token: 'token123',
-          userId: 'user_01',
-          role: 'estudiante'
+      // 1. Crear perfil en User-Service
+      await firstValueFrom(
+        this.userClient.send({ cmd: 'create_user' }, {
+          email: userData.email,
+          nombre: userData.nombre,
+          role: userData.role
         })
       );
+
+      // 2. Crear credenciales en Auth-Service
+      const authAccount = await firstValueFrom(
+        this.authTcpClient.send({ cmd: 'register_auth' }, {
+          email: userData.email,
+          password: userData.password,
+          role: userData.role
+        })
+      );
+
+      return authAccount;
     } catch (error) {
-      return { error: 'Error de conexión TCP Auth', details: error.message };
+      return { status: 'Error', message: 'Servicio Auth/User no disponible' };
     }
+  }
+
+  @Post('auth/login') // Queda como: /api/auth/login
+  async login(@Body() credentials: any) {
+    try {
+      return await firstValueFrom(
+        this.authTcpClient.send({ cmd: 'login' }, credentials)
+      );
+    } catch (error) {
+      throw new UnauthorizedException('Credenciales inválidas o microservicio Auth caído');
+    }
+  }
+
+  // --- RUTAS DE DATOS ---
+
+  @Get('usuarios/todos')
+  async getAllUsers() {
+    return firstValueFrom(this.userClient.send({ cmd: 'get_all_users' }, {}));
+  }
+
+  @Get('perfil')
+  async getProfile(@Query('email') email: string) {
+    console.log('[Gateway] Pidiendo perfil para:', email);
+    // Cambiamos 'add_points' por 'get_user_profile'
+    return firstValueFrom(this.userClient.send({ cmd: 'get_user_profile' }, { email }));
   }
 
   @Get('sumar-puntos')
   async sumarPuntos(@Query('token') token: string, @Query('puntos') puntos: number, @Query('email') email: string) {
     const service = this.getGrpcService();
+    const auth = await firstValueFrom(service.ValidateToken({ token: token || '' }));
+    if (!auth || !auth.valid) throw new UnauthorizedException('Token inválido');
 
-    if (!service) {
-      throw new UnauthorizedException('Servicio Auth gRPC no disponible');
-    }
-
-    try {
-      // 1. Validar Token vía gRPC
-      const authResponse = await firstValueFrom(service.ValidateToken({ token: token || '' }));
-
-      // LOG DE DEPURACIÓN CLAVE:
-      console.log('🔍 Gateway recibió de gRPC:', JSON.stringify(authResponse));
-
-      // Validación mejorada: si llega userId o role, consideramos que es válido aunque 'valid' sea undefined
-      const isTokenValid = authResponse && (authResponse.valid === true || authResponse.userId);
-
-      if (!isTokenValid) {
-        throw new UnauthorizedException('Token inválido o no reconocido por el servidor');
-      }
-
-      if (authResponse.role !== 'estudiante') {
-        throw new UnauthorizedException('Acceso denegado: Se requiere rol de estudiante');
-      }
-
-      // 2. Sumar puntos vía TCP al User-Service
-      const userResponse = await firstValueFrom(
-        this.userClient.send({ cmd: 'add_points' }, {
-          email: email,
-          puntos: Number(puntos)
-        })
-      );
-
-      return {
-        status: 'Success',
-        message: 'Puntos procesados correctamente',
-        auth: authResponse,
-        user_result: userResponse
-      };
-
-    } catch (error) {
-      console.error('❌ Error en flujo:', error.message);
-      // Evitamos reenviar el error 401 si ya es una UnauthorizedException
-      if (error instanceof UnauthorizedException) throw error;
-      throw new UnauthorizedException('Fallo en la operación: ' + error.message);
-    }
+    return firstValueFrom(
+      this.userClient.send({ cmd: 'add_points' }, { email, puntos: Number(puntos) })
+    );
   }
 
-  @Get('health')
-  check() {
-    return { status: 'Gateway OK', timestamp: new Date().toISOString() };
+  @Get('reportes/mensual')
+  async getMonthlyReport() {
+    return firstValueFrom(this.reportClient.send({ cmd: 'get_monthly' }, {}));
+  }
+
+  @Get('rewards')
+  async getRewards() {
+    return firstValueFrom(this.rewardClient.send({ cmd: 'get_catalog' }, {}));
+  }
+
+  @Get('health/status')
+  async getHealth() {
+    try {
+      return await firstValueFrom(this.healthClient.send({ cmd: 'get_status' }, {}));
+    } catch (e) {
+      return { status: 'Gateway OK', services: 'Sincronizando...' };
+    }
   }
 }

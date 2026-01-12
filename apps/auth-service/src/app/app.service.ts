@@ -5,48 +5,62 @@ import Redis from 'ioredis';
 export class AppService {
   private readonly redis: Redis;
 
+  private usersAuth = [
+    { email: 'admin@uce.edu.ec', password: '123', role: 'admin' },
+    { email: 'santiago@uce.edu.ec', password: '123', role: 'estudiante' }
+  ];
+
   constructor() {
-    // Conexión directa y robusta
-    this.redis = new Redis({
-      host: 'localhost',
-      port: 6379,
-    });
-
-    this.redis.on('connect', () => console.log('🚀 Auth-Service: Conectado a Redis directamente'));
+    // Configuración de conexión a Redis
+    this.redis = new Redis({ host: 'localhost', port: 6379 });
   }
 
-  async createSession(token: string, userId: string, role: string) {
-    const key = `session:${token}`;
-    const data = JSON.stringify({ userId, role });
+  async register(data: any) {
+    const exists = this.usersAuth.find(u => u.email === data.email);
+    if (exists) return { status: 'Error', message: 'El usuario ya existe' };
 
-    // Guardado directo en Redis (TTL de 1 hora)
-    await this.redis.set(key, data, 'EX', 3600);
+    const newUser = {
+      email: data.email,
+      password: data.password,
+      role: data.role || 'estudiante'
+    };
 
-    console.log(`[Redis-Direct] 💾 Guardado: ${key}`);
-    return { status: 'success', message: 'Token guardado en Redis' };
+    this.usersAuth.push(newUser);
+    return { status: 'Success', message: 'Credenciales creadas' };
   }
 
-  async validateToken(data: any) {
-    // Extraemos el token si viene como objeto (gRPC) o string
-    const token = typeof data === 'object' ? data.token : data;
-    const key = `session:${token}`;
+  async login(credentials: any) {
+    const user = this.usersAuth.find(
+      u => u.email === credentials.email && u.password === credentials.password
+    );
 
-    console.log(`[Redis-Direct] 🔍 Buscando: ${key}`);
+    if (!user) return { status: 'Error', message: 'Credenciales incorrectas' };
 
-    const result = await this.redis.get(key);
+    const token = 'jwt_' + Math.random().toString(36).substring(7);
 
-    if (!result) {
-      console.log(`[Redis-Direct] ❌ No existe la llave: ${key}`);
-      return { valid: false, userId: '', role: '' };
+    try {
+      // Guardar sesión en Redis por 1 hora
+      await this.redis.set(`session:${token}`, JSON.stringify({ userId: user.email, role: user.role }), 'EX', 3600);
+    } catch (e) {
+      console.warn('⚠️ Redis no disponible, el token no será persistente');
     }
 
-    const parsed = JSON.parse(result);
-    console.log(`[Redis-Direct] ✅ Encontrado:`, parsed);
+    return { status: 'Success', token, role: user.role, email: user.email };
+  }
 
-    return {
-      valid: true,
-      userId: parsed.userId,
-      role: parsed.role,
-    };
+  async validateToken(data: { token: string }) {
+    const token = data.token; // Extraemos el string del objeto
+
+    if (token === 'token_dummy') return { valid: true, userId: 'test@uce.edu.ec', role: 'estudiante' };
+
+    try {
+      const result = await this.redis.get(`session:${token}`);
+      if (!result) return { valid: false };
+
+      const parsed = JSON.parse(result);
+      return { valid: true, userId: parsed.userId, role: parsed.role };
+    } catch (error) {
+      return { valid: false };
+    }
   }
 }

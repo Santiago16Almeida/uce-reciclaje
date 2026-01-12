@@ -1,8 +1,9 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
+import { MessagePattern } from '@nestjs/microservices'; // Importante
 
-@Controller('health')
+@Controller()
 export class AppController {
-  @Get('status')
+  @MessagePattern({ cmd: 'get_status' }) // Debe coincidir con el Gateway
   check() {
     return {
       status: 'UP',

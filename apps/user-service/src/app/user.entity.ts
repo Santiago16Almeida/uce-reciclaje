@@ -5,18 +5,18 @@ export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ type: 'varchar' }) // <--- OBLIGATORIO PARA POSTGRES
+    @Column({ type: 'varchar', length: 255 })
     nombre: string;
 
-    @Column({ type: 'varchar', unique: true }) // <--- OBLIGATORIO PARA POSTGRES
+    @Column({ type: 'varchar', length: 255, unique: true })
     email: string;
 
-    @Column({ type: 'varchar', default: 'estudiante' }) // <--- OBLIGATORIO PARA POSTGRES
-    rol: 'estudiante' | 'admin';
+    @Column({ type: 'varchar', length: 50, default: 'estudiante' })
+    rol: string; // 'estudiante' | 'admin'
 
-    @Column({ type: 'integer', default: 0 }) // <--- OBLIGATORIO PARA POSTGRES
+    @Column({ type: 'integer', default: 0 })
     puntos: number;
 
-    @Column({ type: 'boolean', default: true }) // <--- OBLIGATORIO PARA POSTGRES
+    @Column({ type: 'boolean', default: true })
     estaActivo: boolean;
 }

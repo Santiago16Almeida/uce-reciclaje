@@ -7,9 +7,8 @@ export class AppService implements OnModuleInit {
     @Inject('KAFKA_SERVICE') private readonly kafkaClient: ClientKafka,
   ) { }
 
-  // Kafka necesita conectarse al iniciar el módulo
   async onModuleInit() {
-    this.kafkaClient.subscribeToResponseOf('uce.reciclaje.botella_depositada');
+    // Solo conectamos, eliminamos el subscribeToResponseOf que daba error
     await this.kafkaClient.connect();
     console.log('[Deposit-Service] Conectado a Kafka');
   }
@@ -17,9 +16,9 @@ export class AppService implements OnModuleInit {
   enviarEventoReciclaje(email: string, puntos: number) {
     console.log(`[Deposit-Service] Emitiendo evento a Kafka para: ${email}`);
 
-    // Emitimos el evento (esto es asíncrono, no espera respuesta)
-    return this.kafkaClient.emit('uce.reciclaje.botella_depositada', {
-      userId: email,
+    // EL NOMBRE DEBE SER IGUAL AL DEL USER SERVICE
+    return this.kafkaClient.emit('botella_nueva', {
+      email: email, // Usamos email para que el User Service lo encuentre
       puntos: puntos,
       fecha: new Date().toISOString()
     });

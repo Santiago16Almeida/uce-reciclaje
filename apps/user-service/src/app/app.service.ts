@@ -10,50 +10,40 @@ export class AppService {
     private readonly userRepository: Repository<User>,
   ) { }
 
-  async getProfile(email: string) {
-    console.log(`[User-Service] Buscando o creando perfil para: ${email}`);
+  async createUser(data: any) {
+    const existing = await this.userRepository.findOne({ where: { email: data.email } });
+    if (existing) return existing;
 
-    try {
-      let usuario = await this.userRepository.findOne({ where: { email } });
-
-      // Si no existe, lo creamos automáticamente
-      if (!usuario) {
-        console.log(`[User-Service] Usuario nuevo detectado. Registrando en Postgres...`);
-        usuario = this.userRepository.create({
-          nombre: 'Santiago Estudiante',
-          email: email,
-          puntos: 0,
-          rol: 'estudiante',
-        });
-        await this.userRepository.save(usuario);
-      }
-
-      return usuario;
-    } catch (error) {
-      console.error('[User-Service] Error en BD:', error);
-      throw error;
-    }
+    const user = this.userRepository.create({
+      nombre: data.nombre,
+      email: data.email,
+      rol: data.role || 'estudiante',
+      puntos: 0
+    });
+    return await this.userRepository.save(user);
   }
 
-  async sumarPuntos(email: string, puntosNuevos: number) {
-    // 1. Aseguramos que el usuario exista (lo busca o lo crea)
-    const usuario = await this.getProfile(email);
+  async sumarPuntos(email: string, puntos: number) {
+    const user = await this.userRepository.findOne({ where: { email } });
+    if (!user) return { status: 'Error', message: 'Usuario no encontrado' };
 
-    // 2. Sumamos los puntos
-    const puntosAnteriores = Number(usuario.puntos) || 0;
-    usuario.puntos = puntosAnteriores + Number(puntosNuevos);
+    // Si es admin, no suma puntos
+    if (user.rol === 'admin') return user;
 
-    // 3. Guardamos en PostgreSQL
-    await this.userRepository.save(usuario);
-
-    // LOG DE AUDITORÍA PROFESIONAL
-    console.log('================ AUDITORÍA DE RECICLAJE ================');
-    console.log(`FECHA: ${new Date().toLocaleString()}`);
-    console.log(`USUARIO: ${usuario.nombre} (${email})`);
-    console.log(`TRANSACCIÓN: +${puntosNuevos} puntos`);
-    console.log(`BALANCE: ${puntosAnteriores} -> ${usuario.puntos}`);
-    console.log('========================================================');
-
-    return usuario;
+    user.puntos += puntos;
+    return await this.userRepository.save(user);
   }
+
+  async obtenerTodosParaAuditoria() {
+    return await this.userRepository.find({
+      order: { puntos: 'DESC' }
+    });
+  }
+
+  async buscarPorEmail(email: string) {
+    const user = await this.userRepository.findOne({ where: { email } });
+    if (!user) throw new Error('No existe el usuario');
+    return user; // Esto devuelve el objeto con id, nombre, email y PUNTOS
+  }
+
 }
