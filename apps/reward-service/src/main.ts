@@ -7,7 +7,7 @@ async function bootstrap() {
     transport: Transport.TCP,
     options: {
       host: '127.0.0.1',
-      port: 3006, // El puerto que espera tu Gateway
+      port: 3006,
     },
   });
   await app.listen();

@@ -3,10 +3,11 @@ import { ClientProxy, ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { Response } from 'express';
 
-@Controller() // <--- VACÍO, porque main.ts ya pone el /api
+@Controller()
 export class AppController implements OnModuleInit {
   private authGrpcService: any;
 
+  //Comunicacion entre microservicios
   constructor(
     @Inject('AUTH_PACKAGE') private readonly authClient: any,
     @Inject('USER_SERVICE') private readonly userClient: ClientProxy,
@@ -39,10 +40,10 @@ export class AppController implements OnModuleInit {
 
   // --- RUTAS DE AUTENTICACIÓN ---
 
-  @Post('auth/register') // Queda como: /api/auth/register
+  @Post('auth/register')
   async register(@Body() userData: any) {
     try {
-      // 1. Crear perfil en User-Service
+      //Crear perfil en User-Service
       await firstValueFrom(
         this.userClient.send({ cmd: 'create_user' }, {
           email: userData.email,
@@ -51,7 +52,7 @@ export class AppController implements OnModuleInit {
         })
       );
 
-      // 2. Crear credenciales en Auth-Service
+      //Crear credenciales en Auth-Service
       const authAccount = await firstValueFrom(
         this.authTcpClient.send({ cmd: 'register_auth' }, {
           email: userData.email,
@@ -66,7 +67,7 @@ export class AppController implements OnModuleInit {
     }
   }
 
-  @Post('auth/login') // Queda como: /api/auth/login
+  @Post('auth/login')
   async login(@Body() credentials: any) {
     try {
       return await firstValueFrom(
@@ -87,7 +88,6 @@ export class AppController implements OnModuleInit {
   @Get('perfil')
   async getProfile(@Query('email') email: string) {
     console.log('[Gateway] Pidiendo perfil para:', email);
-    // Cambiamos 'add_points' por 'get_user_profile'
     return firstValueFrom(this.userClient.send({ cmd: 'get_user_profile' }, { email }));
   }
 
@@ -101,7 +101,7 @@ export class AppController implements OnModuleInit {
       const respuesta = await firstValueFrom(
         this.userClient.send({ cmd: 'add_points' }, { email, puntos: Number(puntos) })
       );
-      return respuesta; // Aquí ya viaja el { status: 'Success' }
+      return respuesta;
     } catch (e) {
       return { status: 'Error' };
     }
@@ -109,22 +109,25 @@ export class AppController implements OnModuleInit {
 
   @Get('reportes/mensual')
   async getMonthlyReport() {
-    // 1. Obtener datos reales de los usuarios
-    const usuarios = await firstValueFrom(
-      this.userClient.send({ cmd: 'get_all_users' }, {})
-    );
+    try {
+      const usuarios = await firstValueFrom(
+        this.userClient.send({ cmd: 'get_all_users' }, {})
+      );
 
-    // 2. Enviar esos datos al Report-Service para el cálculo
-    // Creamos un nuevo patrón o usamos el service para calcularlo aquí
-    const totalPuntos = usuarios.reduce((sum, u) => sum + (Number(u.puntos) || 0), 0);
-    const totalBotellas = Math.floor(totalPuntos / 10);
-    const top = usuarios.sort((a, b) => b.puntos - a.puntos)[0];
+      const totalPuntos = usuarios.reduce((sum, u) => sum + (Number(u.puntos) || 0), 0);
+      const totalBotellas = Math.floor(totalPuntos / 10);
 
-    return {
-      totalBotellas,
-      ahorroCO2: `${(totalBotellas * 0.05).toFixed(2)}kg`,
-      estudianteTop: top ? top.nombre : '---'
-    };
+      const sorted = [...usuarios].sort((a, b) => (Number(b.puntos) || 0) - (Number(a.puntos) || 0));
+      const top = sorted[0];
+
+      return {
+        totalBotellas,
+        ahorroCO2: `${(totalBotellas * 0.05).toFixed(2)}kg`,
+        estudianteTop: top ? top.nombre : '---'
+      };
+    } catch (error) {
+      return { totalBotellas: 0, ahorroCO2: '0.00kg', estudianteTop: '---' };
+    }
   }
 
   @Get('rewards')
@@ -148,7 +151,7 @@ export class AppController implements OnModuleInit {
   }
 
   @Get('reportes/exportar')
-  async exportarReporte(@Res() res: Response) { // Añadimos @Res
+  async exportarReporte(@Res() res: Response) {
     try {
       const usuarios = await firstValueFrom(
         this.userClient.send({ cmd: 'get_all_users' }, {})
@@ -158,14 +161,15 @@ export class AppController implements OnModuleInit {
         this.reportClient.send({ cmd: 'export_csv' }, usuarios)
       );
 
-      // Configuramos las cabeceras para forzar la descarga del archivo
-      res.setHeader('Content-Type', 'text/csv');
-      res.setHeader('Content-Disposition', 'attachment; filename=reporte_uce_recicla.csv');
+      res.set({
+        'Content-Type': 'text/csv',
+        'Content-Disposition': 'attachment; filename=reporte_uce_recicla.csv',
+      });
 
-      return res.send(csvContent);
+      return res.status(200).send(csvContent);
     } catch (error) {
-      return res.status(500).json({ status: 'Error', message: 'No se pudo generar el reporte' });
+      console.error('Error exportando CSV:', error);
+      return res.status(500).send('Error al generar el archivo');
     }
   }
-
 }

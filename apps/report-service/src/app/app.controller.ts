@@ -8,15 +8,13 @@ export class AppController {
 
   @MessagePattern({ cmd: 'get_monthly' })
   async obtenerReporte() {
-    // IMPORTANTE: Como el Report-Service no tiene DB, 
-    // en un flujo ideal el Gateway debería pasarle los datos.
-    // Por ahora, para que no falle el dashboard, devolvemos el cálculo.
+
     return { status: 'Success', message: 'Use la ruta dinámica desde el Gateway' };
   }
 
   @MessagePattern({ cmd: 'export_csv' })
-  exportarDatos(@Payload() usuarios: any[]) {
-    // Recibe los usuarios reales y genera el CSV
+  exportarDatos(usuarios: any[]) {
+    console.log('--- REPORT SERVICE: Generando CSV con', usuarios.length, 'usuarios ---');
     return this.appService.generarCSV(usuarios);
   }
 }

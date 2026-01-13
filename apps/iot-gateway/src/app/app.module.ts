@@ -7,12 +7,12 @@ import { AppService } from './app.service';
   imports: [
     ClientsModule.register([
       {
-        name: 'KAFKA_SERVICE', // <--- Este es el nombre que Nest no encontraba
+        name: 'KAFKA_SERVICE',
         transport: Transport.KAFKA,
         options: {
           client: {
             clientId: 'iot',
-            brokers: ['localhost:9092'], // Verifica que Kafka esté en el 9092 en Docker
+            brokers: ['localhost:9092'],
           },
           consumer: {
             groupId: 'iot-consumer',

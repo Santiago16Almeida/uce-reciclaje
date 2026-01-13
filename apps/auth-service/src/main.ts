@@ -16,7 +16,7 @@ async function bootstrap() {
     },
   });
 
-  // TCP - Canal para el Gateway (ESTE ES EL QUE USA EL GATEWAY)
+  // TCP - Canal para el Gateway
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.TCP,
     options: { host: '127.0.0.1', port: 4001 },
@@ -24,7 +24,6 @@ async function bootstrap() {
 
   await app.startAllMicroservices();
 
-  // HTTP - Escucha en el 4003 para no chocar con el 4001 TCP
   await app.listen(4003);
 
   console.log('✅ Auth-Service conectado al Gateway en puerto 4001');

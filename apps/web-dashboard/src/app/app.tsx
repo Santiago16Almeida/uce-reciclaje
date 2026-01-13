@@ -18,18 +18,18 @@ export function App() {
 
   const fetchData = async (email: string, role: string) => {
     try {
-      // 1. Cargar Perfil del Usuario
+      // Cargar Perfil del Usuario
       const resUser = await fetch(`${API_BASE}/perfil?email=${email}`);
       const dataUser = await resUser.json();
       setPoints(dataUser.puntos || 0);
       setUserName(dataUser.nombre || 'Usuario UCE');
 
-      // 2. Cargar Catálogo de Recompensas
+      // Carga Catálogo de Recompensas
       const resRewards = await fetch(`${API_BASE}/rewards`);
       const dataRewards = await resRewards.json();
       setRecompensas(Array.isArray(dataRewards) ? dataRewards : []);
 
-      // 3. Si es ADMIN, cargar Ranking y Reporte Dinámico
+      // Carga Ranking y Reporte Dinámico
       if (role === 'admin') {
         const resRanking = await fetch(`${API_BASE}/usuarios/todos`);
         const dataRank = await resRanking.json();
@@ -66,7 +66,6 @@ export function App() {
         setToken(data.token || 'dummy_token');
         setIsLoggedIn(true);
 
-        // Cargar datos inmediatamente tras el login
         fetchData(emailToUse, roleToUse);
       } else {
         alert(data.message || "Error en la operación");
@@ -83,7 +82,7 @@ export function App() {
 
       if (data.status === 'Success') {
         alert("¡Botella Registrada! +10 puntos");
-        fetchData(userEmail, userRole!); // Refrescar puntos y reportes
+        fetchData(userEmail, userRole!);
       } else {
         alert("Error: " + (data.message || "No se pudo actualizar"));
       }
@@ -93,8 +92,8 @@ export function App() {
   };
 
   const handleExportCSV = () => {
-    // Abrir en pestaña nueva para disparar la descarga del Gateway
-    window.open(`${API_BASE}/reportes/exportar`, '_blank');
+    const url = `${API_BASE}/reportes/exportar?t=${new Date().getTime()}`;
+    window.open(url, '_blank');
   };
 
   const handleRedeem = async (rewardId: string, costo: number) => {
@@ -230,8 +229,8 @@ export function App() {
                         disabled={points < r.costo}
                         onClick={() => handleRedeem(r.id, r.costo)}
                         className={`mt-6 py-4 rounded-2xl font-black text-sm transition-all ${points >= r.costo
-                            ? 'bg-gray-900 text-white hover:bg-black shadow-lg shadow-gray-200'
-                            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                          ? 'bg-gray-900 text-white hover:bg-black shadow-lg shadow-gray-200'
+                          : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                           }`}
                       >
                         {points >= r.costo ? 'CANJEAR AHORA' : `TE FALTAN ${r.costo - points} PTS`}

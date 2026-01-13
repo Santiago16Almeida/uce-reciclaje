@@ -14,7 +14,7 @@ async function bootstrap() {
   });
 
   await app.startAllMicroservices();
-  await app.listen(4011); // <--- PUERTO DIFERENTE AL 3011
+  await app.listen(4011);
   console.log('📠 IoT-Gateway listo');
 }
 bootstrap();

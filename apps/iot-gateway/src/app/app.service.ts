@@ -7,11 +7,11 @@ export class AppService {
     @Inject('KAFKA_SERVICE') private readonly kafkaClient: ClientKafka
   ) { }
 
-  // Este método recibe la señal cruda del sensor de la máquina
+  //Recibe la señal del sensor
   recibirSenalSensor(sensorId: string, pesoDetectado: number) {
     console.log(`[IoT-Gateway] Señal recibida del sensor ${sensorId}: ${pesoDetectado}g`);
 
-    // REQUISITO 15: Reenvía la información al sistema principal vía Kafka
+    //Reenvía la información al sistema principal vía Kafka
     return this.kafkaClient.emit('uce.reciclaje.botella_depositada', {
       sensor: sensorId,
       peso: pesoDetectado,

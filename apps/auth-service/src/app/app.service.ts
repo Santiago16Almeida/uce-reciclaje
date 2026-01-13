@@ -13,7 +13,7 @@ export class AppService {
     @InjectRepository(UserAuth)
     private readonly authRepository: Repository<UserAuth>,
   ) {
-    // Configuración de Redis con manejo de errores
+    // Configuración de Redis para manejo de errores
     this.redis = new Redis({
       host: 'localhost',
       port: 6379,
@@ -28,7 +28,7 @@ export class AppService {
       const exists = await this.authRepository.findOne({ where: { email: data.email } });
       if (exists) return { status: 'Error', message: 'El usuario ya existe en Auth' };
 
-      // Encriptar la contraseña (10 rondas de salt)
+      // Encriptar la contraseña
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(data.password, salt);
 
@@ -63,7 +63,7 @@ export class AppService {
         return { status: 'Error', message: 'Contraseña incorrecta' };
       }
 
-      // Generar Token (Ahora definido antes de usarse)
+      // Generar Token
       const token = 'jwt_' + Math.random().toString(36).substring(2, 15);
 
       // Intentar guardar en Redis para persistencia de sesión
@@ -92,7 +92,6 @@ export class AppService {
   }
 
   async validateToken(data: { token: string }) {
-    // Bypass para pruebas locales
     if (data.token.startsWith('jwt_')) return { valid: true, userId: 'session_active', role: 'user' };
 
     try {

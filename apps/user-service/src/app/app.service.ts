@@ -27,10 +27,8 @@ export class AppService {
     const usuario = await this.userRepository.findOne({ where: { email } });
     if (!usuario) return { status: 'Error', message: 'No existe' };
 
-    // Forzamos la conversión y sumamos (si puntos es -10, restará)
     const nuevoPuntaje = Number(usuario.puntos) + Number(puntos);
 
-    // Evitamos puntajes negativos por seguridad
     usuario.puntos = nuevoPuntaje < 0 ? 0 : nuevoPuntaje;
 
     const guardado = await this.userRepository.save(usuario);
@@ -42,7 +40,12 @@ export class AppService {
   async buscarPorEmail(email: string) {
     const user = await this.userRepository.findOne({ where: { email } });
     if (!user) throw new Error('No existe el usuario');
-    return user; // Esto devuelve el objeto con id, nombre, email y PUNTOS
+    return user;
+  }
+
+  async findAll() {
+    console.log('[User-Service] Extrayendo lista completa para el Admin...');
+    return await this.userRepository.find();
   }
 
 }

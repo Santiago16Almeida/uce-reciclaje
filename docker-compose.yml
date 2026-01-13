@@ -1,5 +1,5 @@
 services:
-  # Base de Datos 1: PostgreSQL
+  # Base de Datos 1: PostgreSQL maneja usuarios, contraseñas
   db-postgres:
     image: postgres:15-alpine
     container_name: uce-postgres
@@ -10,21 +10,21 @@ services:
     ports:
       - "5433:5432"
 
-  # Base de Datos 2: MongoDB
+  # Base de Datos 2: MongoDB sirve para logs, auditoria y eventos
   db-mongo:
     image: mongo:latest
     container_name: uce-mongo
     ports:
       - "27017:27017"
 
-  # Base de Datos 3: Redis
+  # Base de Datos 3: Redis sistema de cache, sesiones
   db-redis:
     image: redis:alpine
     container_name: uce-redis
     ports:
       - "6379:6379"
 
-  # MENSAJERÍA: Zookeeper (Versión oficial de Confluent)
+  # MENSAJERÍA: Zookeeper sirve para coordinar kafka
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     container_name: uce-zookeeper
@@ -32,7 +32,7 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
-  # MENSAJERÍA: Kafka (Versión oficial de Confluent)
+  # MENSAJERÍA: Kafka sive para la mensajeria
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     container_name: uce-kafka

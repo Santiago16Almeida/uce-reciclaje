@@ -6,7 +6,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
-  const port = 3015; // Puerto único para el servicio de depósito
+  const port = 3015;
   await app.listen(port);
   Logger.log(`🚀 Deposit-Service corriendo en: http://localhost:${port}/${globalPrefix}`);
 }

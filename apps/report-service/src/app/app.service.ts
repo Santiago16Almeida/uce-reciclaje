@@ -4,7 +4,6 @@ import { Injectable } from '@nestjs/common';
 export class AppService {
   private ahorroCO2Base = 0.05; // 50g por botella
 
-  // Ahora recibe la lista de usuarios reales del User-Service
   generarReporteDinamico(usuarios: any[]) {
     // Calculamos el total de puntos de todos los usuarios
     const totalPuntos = usuarios.reduce((sum, u) => sum + (Number(u.puntos) || 0), 0);
@@ -28,7 +27,7 @@ export class AppService {
   generarCSV(usuarios: any[]) {
     const header = "Nombre,Email,Puntos,Rol\n";
     const rows = usuarios.map(u =>
-      `${u.nombre},${u.email},${u.puntos},${u.rol}`
+      `${u.nombre},${u.email},${u.puntos || 0},${u.role || 'estudiante'}`
     ).join("\n");
     return header + rows;
   }

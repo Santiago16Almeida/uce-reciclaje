@@ -6,7 +6,7 @@ import { Audit, AuditSchema } from './audit.schema';
 
 @Module({
   imports: [
-    // REQUISITO 11: MongoDB para Auditoría
+    //MongoDB para Auditoría
     MongooseModule.forRoot('mongodb://127.0.0.1:27017/uce_audit_db'),
     MongooseModule.forFeature([{ name: Audit.name, schema: AuditSchema }]),
   ],

@@ -6,12 +6,12 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) { }
 
-  // --- ESCUCHA DEL GATEWAY (Consultar Perfil) ---
+  //Consultar Perfil a traves del gateway
   @MessagePattern({ cmd: 'get_user_profile' })
   async handleGetProfile(@Payload() data: { email: string }) {
     console.log('[User-Service] Consultando perfil para:', data.email);
     try {
-      // Retorna el usuario completo (incluyendo puntos) para el Dashboard
+      // Retorna el usuario completo con los puntos para el Dashboard
       return await this.appService.buscarPorEmail(data.email);
     } catch (error) {
       console.error('❌ Error al obtener perfil:', error.message);
@@ -19,7 +19,7 @@ export class AppController {
     }
   }
 
-  // --- ESCUCHA DE KAFKA (Sincronización de Botellas) ---
+  // Sincronizacion de botellas con kafka
   @EventPattern('botella_nueva')
   async manejarBotellaRecicladaNueva(@Payload() data: any) {
     try {
@@ -38,22 +38,20 @@ export class AppController {
     }
   }
 
-  // --- OTROS MENSAJES TCP ---
   @MessagePattern({ cmd: 'create_user' })
   async handleCreateUser(@Payload() data: any) {
     return await this.appService.createUser(data);
   }
 
-  @MessagePattern({ cmd: 'add_points' }) // <--- Nombre exacto que busca el Gateway
+  @MessagePattern({ cmd: 'add_points' })
   async handleSumarPuntos(@Payload() data: { email: string, puntos: number }) {
     console.log('--- USER SERVICE: RECIBIENDO PUNTOS ---');
     console.log('Datos:', data);
 
-    // Asegúrate de usar Number() por si el Gateway envía un string
     return await this.appService.sumarPuntos(data.email, Number(data.puntos));
   }
 
-  // --- ESCUCHA DE KAFKA (Canjes) ---
+  // Canjes desde kafka-
   @EventPattern('canje_realizado')
   async manejarCanje(@Payload() data: any) {
     try {
@@ -68,6 +66,13 @@ export class AppController {
     } catch (error) {
       console.error('⚠️ Error procesando canje:', error.message);
     }
+  }
+
+  @MessagePattern({ cmd: 'get_all_users' })
+  async handleGetAllUsers() {
+    console.log('[User-Service] Extrayendo lista completa de usuarios...');
+    // Aquí llamamos a la función que acabamos de crear
+    return await this.appService.findAll();
   }
 
 }
