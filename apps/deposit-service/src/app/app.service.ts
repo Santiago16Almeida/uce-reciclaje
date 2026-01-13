@@ -23,4 +23,14 @@ export class AppService implements OnModuleInit {
       fecha: new Date().toISOString()
     });
   }
+
+  enviarEventoCanje(email: string, puntos: number) {
+    console.log(`[Deposit-Service] Solicitando descuento de ${puntos} puntos`);
+    return this.kafkaClient.emit('canje_realizado', {
+      email,
+      puntos,
+      fecha: new Date().toISOString()
+    });
+  }
+
 }

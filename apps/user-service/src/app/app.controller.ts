@@ -52,4 +52,22 @@ export class AppController {
     // Asegúrate de usar Number() por si el Gateway envía un string
     return await this.appService.sumarPuntos(data.email, Number(data.puntos));
   }
+
+  // --- ESCUCHA DE KAFKA (Canjes) ---
+  @EventPattern('canje_realizado')
+  async manejarCanje(@Payload() data: any) {
+    try {
+      const email = data.email;
+      const puntos = Number(data.puntos);
+
+      if (email && !isNaN(puntos)) {
+        // En el service, crea una función que reste o usa sumarPuntos con valor negativo
+        await this.appService.sumarPuntos(email, -puntos);
+        console.log(`[User-Service] 📉 Canje procesado: -${puntos} puntos a ${email}`);
+      }
+    } catch (error) {
+      console.error('⚠️ Error procesando canje:', error.message);
+    }
+  }
+
 }

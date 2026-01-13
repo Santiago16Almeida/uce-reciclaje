@@ -83,8 +83,22 @@ export function App() {
 
   const handleRedeem = async (rewardId: string, costo: number) => {
     if (points < costo) return alert("Puntos insuficientes");
-    alert(`¡Canje exitoso! Se han descontado ${costo} puntos.`);
-    fetchData(userEmail, userRole!);
+
+    try {
+      // 1. Enviamos la orden de canje al servidor (puntos negativos)
+      const res = await fetch(`${API_BASE}/sumar?puntos=${-costo}&email=${userEmail}`);
+      const data = await res.json();
+
+      if (data.status === 'Success') {
+        alert(`¡Canje exitoso! Se han descontado ${costo} puntos.`);
+        // 2. Refrescamos el puntaje real de la base de datos
+        fetchData(userEmail, userRole!);
+      } else {
+        alert("Error en el canje: " + (data.message || "No se pudo procesar"));
+      }
+    } catch (e) {
+      alert("Error de conexión al procesar el canje");
+    }
   };
 
   if (!isLoggedIn) {

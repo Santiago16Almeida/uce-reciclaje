@@ -27,17 +27,16 @@ export class AppService {
     const usuario = await this.userRepository.findOne({ where: { email } });
     if (!usuario) return { status: 'Error', message: 'No existe' };
 
-    usuario.puntos = Number(usuario.puntos) + Number(puntos);
+    // Forzamos la conversión y sumamos (si puntos es -10, restará)
+    const nuevoPuntaje = Number(usuario.puntos) + Number(puntos);
+
+    // Evitamos puntajes negativos por seguridad
+    usuario.puntos = nuevoPuntaje < 0 ? 0 : nuevoPuntaje;
+
     const guardado = await this.userRepository.save(usuario);
+    console.log(`[User-Service] DB Actualizada: ${email} ahora tiene ${usuario.puntos}`);
 
-    // DEVOLVEMOS EL STATUS PARA QUE EL FRONTEND NO DE ERROR
     return { ...guardado, status: 'Success' };
-  }
-
-  async obtenerTodosParaAuditoria() {
-    return await this.userRepository.find({
-      order: { puntos: 'DESC' }
-    });
   }
 
   async buscarPorEmail(email: string) {
