@@ -18,7 +18,7 @@ export class AppService {
     return header + rows;
   }
 
-  generarReporteMensual(usuarios: any[]) {
+  generarReporteDinamico(usuarios: any[]) {
     const totalPuntos = usuarios.reduce((sum, u) => sum + (Number(u.puntos) || 0), 0);
     const totalBotellas = Math.floor(totalPuntos / 10);
     const top = [...usuarios].sort((a, b) => (b.puntos || 0) - (a.puntos || 0))[0];
