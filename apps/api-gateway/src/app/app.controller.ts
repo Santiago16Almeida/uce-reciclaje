@@ -157,18 +157,17 @@ export class AppController implements OnModuleInit {
         this.userClient.send({ cmd: 'get_all_users' }, {})
       );
 
+      console.log('[Gateway] Enviando usuarios al Report-Service:', usuarios.length);
+
       const csvContent = await firstValueFrom(
         this.reportClient.send({ cmd: 'export_csv' }, usuarios)
       );
 
-      res.set({
-        'Content-Type': 'text/csv',
-        'Content-Disposition': 'attachment; filename=reporte_uce_recicla.csv',
-      });
-
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=reporte_uce.csv');
       return res.status(200).send(csvContent);
     } catch (error) {
-      console.error('Error exportando CSV:', error);
+      console.error('[Gateway Error Export]', error.message);
       return res.status(500).send('Error al generar el archivo');
     }
   }
