@@ -2,29 +2,34 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class AppService {
-  private totalBotellas = 1540;
-  private ahorroCO2Base = 0.029;
+  private ahorroCO2Base = 0.05; // 50g por botella
 
-  generarReporteMensual() {
+  // Ahora recibe la lista de usuarios reales del User-Service
+  generarReporteDinamico(usuarios: any[]) {
+    // Calculamos el total de puntos de todos los usuarios
+    const totalPuntos = usuarios.reduce((sum, u) => sum + (Number(u.puntos) || 0), 0);
+
+    // Suponiendo que 10 puntos = 1 botella
+    const totalBotellas = Math.floor(totalPuntos / 10);
+
+    // Buscamos al usuario con más puntos
+    const topEstudiante = usuarios.length > 0
+      ? usuarios.sort((a, b) => b.puntos - a.puntos)[0].nombre
+      : '---';
+
     return {
       periodo: 'Enero 2026',
-      totalBotellas: this.totalBotellas,
-      ahorroCO2: `${(this.totalBotellas * this.ahorroCO2Base).toFixed(2)}kg`,
-      estudianteTop: 'Santiago Almeida'
+      totalBotellas: totalBotellas,
+      ahorroCO2: `${(totalBotellas * this.ahorroCO2Base).toFixed(2)}kg`,
+      estudianteTop: topEstudiante
     };
   }
 
-  // NUEVO: Generador de texto CSV
   generarCSV(usuarios: any[]) {
-    const header = "Nombre,Email,Puntos,Rol,Estado\n";
+    const header = "Nombre,Email,Puntos,Rol\n";
     const rows = usuarios.map(u =>
-      `${u.nombre},${u.email},${u.puntos},${u.rol},${u.estaActivo ? 'Activo' : 'Inactivo'}`
+      `${u.nombre},${u.email},${u.puntos},${u.rol}`
     ).join("\n");
     return header + rows;
-  }
-
-  actualizarMetricas(botellasNuevas: number) {
-    this.totalBotellas += botellasNuevas;
-    return { success: true, nuevoTotal: this.totalBotellas };
   }
 }

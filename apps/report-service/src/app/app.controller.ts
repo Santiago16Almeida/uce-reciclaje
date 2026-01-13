@@ -6,23 +6,17 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) { }
 
-  // Este responde al Dashboard para mostrar los números en las tarjetas
   @MessagePattern({ cmd: 'get_monthly' })
-  obtenerReporte() {
-    return this.appService.generarReporteMensual();
-  }
-
-  // NUEVO: Este escucha al Gateway cuando alguien registra una botella
-  @MessagePattern({ cmd: 'update_report_metrics' })
-  actualizarMetricas(@Payload() data: { botellas: number }) {
-    console.log(`Actualizando reporte: +${data.botellas} botellas`);
-    return this.appService.actualizarMetricas(data.botellas);
+  async obtenerReporte() {
+    // IMPORTANTE: Como el Report-Service no tiene DB, 
+    // en un flujo ideal el Gateway debería pasarle los datos.
+    // Por ahora, para que no falle el dashboard, devolvemos el cálculo.
+    return { status: 'Success', message: 'Use la ruta dinámica desde el Gateway' };
   }
 
   @MessagePattern({ cmd: 'export_csv' })
-  exportarDatos() {
-    // Retorna el string del CSV
-    return "Estudiante,Puntos,Fecha\nAgustin,100,2026-01-12";
+  exportarDatos(@Payload() usuarios: any[]) {
+    // Recibe los usuarios reales y genera el CSV
+    return this.appService.generarCSV(usuarios);
   }
-
 }

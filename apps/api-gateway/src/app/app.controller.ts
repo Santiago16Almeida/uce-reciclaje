@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body, Inject, OnModuleInit, Query, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Inject, OnModuleInit, Query, UnauthorizedException, Res } from '@nestjs/common';
 import { ClientProxy, ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import { Response } from 'express';
 
 @Controller() // <--- VACÍO, porque main.ts ya pone el /api
 export class AppController implements OnModuleInit {
@@ -108,7 +109,22 @@ export class AppController implements OnModuleInit {
 
   @Get('reportes/mensual')
   async getMonthlyReport() {
-    return firstValueFrom(this.reportClient.send({ cmd: 'get_monthly' }, {}));
+    // 1. Obtener datos reales de los usuarios
+    const usuarios = await firstValueFrom(
+      this.userClient.send({ cmd: 'get_all_users' }, {})
+    );
+
+    // 2. Enviar esos datos al Report-Service para el cálculo
+    // Creamos un nuevo patrón o usamos el service para calcularlo aquí
+    const totalPuntos = usuarios.reduce((sum, u) => sum + (Number(u.puntos) || 0), 0);
+    const totalBotellas = Math.floor(totalPuntos / 10);
+    const top = usuarios.sort((a, b) => b.puntos - a.puntos)[0];
+
+    return {
+      totalBotellas,
+      ahorroCO2: `${(totalBotellas * 0.05).toFixed(2)}kg`,
+      estudianteTop: top ? top.nombre : '---'
+    };
   }
 
   @Get('rewards')
@@ -129,6 +145,27 @@ export class AppController implements OnModuleInit {
   async registrarDeposito(@Body() data: { email: string, puntos: number }) {
     console.log('[Gateway] Redirigiendo depósito para:', data.email);
     return this.depositClient.send({ cmd: 'depositar_botella' }, data);
+  }
+
+  @Get('reportes/exportar')
+  async exportarReporte(@Res() res: Response) { // Añadimos @Res
+    try {
+      const usuarios = await firstValueFrom(
+        this.userClient.send({ cmd: 'get_all_users' }, {})
+      );
+
+      const csvContent = await firstValueFrom(
+        this.reportClient.send({ cmd: 'export_csv' }, usuarios)
+      );
+
+      // Configuramos las cabeceras para forzar la descarga del archivo
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=reporte_uce_recicla.csv');
+
+      return res.send(csvContent);
+    } catch (error) {
+      return res.status(500).json({ status: 'Error', message: 'No se pudo generar el reporte' });
+    }
   }
 
 }
