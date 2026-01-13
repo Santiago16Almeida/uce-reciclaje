@@ -44,8 +44,12 @@ export class AppController {
     return await this.appService.createUser(data);
   }
 
-  @MessagePattern({ cmd: 'add_points' })
+  @MessagePattern({ cmd: 'add_points' }) // <--- Nombre exacto que busca el Gateway
   async handleSumarPuntos(@Payload() data: { email: string, puntos: number }) {
+    console.log('--- USER SERVICE: RECIBIENDO PUNTOS ---');
+    console.log('Datos:', data);
+
+    // Asegúrate de usar Number() por si el Gateway envía un string
     return await this.appService.sumarPuntos(data.email, Number(data.puntos));
   }
 }

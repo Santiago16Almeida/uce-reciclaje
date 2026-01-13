@@ -24,14 +24,14 @@ export class AppService {
   }
 
   async sumarPuntos(email: string, puntos: number) {
-    const user = await this.userRepository.findOne({ where: { email } });
-    if (!user) return { status: 'Error', message: 'Usuario no encontrado' };
+    const usuario = await this.userRepository.findOne({ where: { email } });
+    if (!usuario) return { status: 'Error', message: 'No existe' };
 
-    // Si es admin, no suma puntos
-    if (user.rol === 'admin') return user;
+    usuario.puntos = Number(usuario.puntos) + Number(puntos);
+    const guardado = await this.userRepository.save(usuario);
 
-    user.puntos += puntos;
-    return await this.userRepository.save(user);
+    // DEVOLVEMOS EL STATUS PARA QUE EL FRONTEND NO DE ERROR
+    return { ...guardado, status: 'Success' };
   }
 
   async obtenerTodosParaAuditoria() {

@@ -18,4 +18,11 @@ export class AppController {
     console.log(`Actualizando reporte: +${data.botellas} botellas`);
     return this.appService.actualizarMetricas(data.botellas);
   }
+
+  @MessagePattern({ cmd: 'export_csv' })
+  exportarDatos() {
+    // Retorna el string del CSV
+    return "Estudiante,Puntos,Fecha\nAgustin,100,2026-01-12";
+  }
+
 }

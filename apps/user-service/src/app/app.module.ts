@@ -28,9 +28,12 @@ import { User } from './user.entity';
         options: {
           client: {
             brokers: ['localhost:9092'],
+            initialRetryTime: 100,
+            retries: 8
           },
           consumer: {
-            groupId: 'user-consumer',
+            groupId: `user-consumer-v2`,
+            allowAutoTopicCreation: true
           },
         },
       },

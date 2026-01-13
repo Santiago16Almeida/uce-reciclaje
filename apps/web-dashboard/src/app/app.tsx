@@ -31,10 +31,12 @@ export function App() {
         const resRanking = await fetch(`${API_BASE}/usuarios/todos`);
         const dataRank = await resRanking.json();
         setRanking(Array.isArray(dataRank) ? dataRank : []);
+
         const resReport = await fetch(`${API_BASE}/reportes/mensual`);
-        setReporte(await resReport.json());
+        const dataReport = await resReport.json();
+        setReporte(dataReport);
       }
-    } catch (e) { console.error("Error cargando datos"); }
+    } catch (e) { console.error("Error cargando datos", e); }
   };
 
   const handleAuth = async (e: React.FormEvent) => {
@@ -47,31 +49,41 @@ export function App() {
         body: JSON.stringify(formData)
       });
       const data = await res.json();
-      if (data.token || data.status === 'Success') {
+      if (data.token || data.status === 'Success' || data.email) {
+        const finalRole = data.role || formData.role;
         setUserEmail(formData.email);
-        setUserRole(data.role || formData.role);
+        setUserRole(finalRole);
         setToken(data.token || 'dummy');
         setIsLoggedIn(true);
-        fetchData(formData.email, data.role || formData.role);
-      } else { alert(data.message); }
+        fetchData(formData.email, finalRole);
+      } else { alert(data.message || "Error en credenciales"); }
     } catch (error) { alert("Error de conexión"); }
   };
 
   const handleRecycle = async () => {
     try {
-      const res = await fetch(`${API_BASE}/sumar-puntos?puntos=10&email=${userEmail}`);
+      const res = await fetch(`${API_BASE}/sumar?puntos=10&email=${userEmail}`);
       const data = await res.json();
-      if (data.status === 'Success') {
+
+      // CAMBIO AQUÍ: Si hay puntos o status Success, es válido
+      if (data.status === 'Success' || data.puntos !== undefined) {
         alert("¡Botella Registrada! +10 puntos");
         fetchData(userEmail, userRole!);
+      } else {
+        alert("Error: " + (data.message || "No se pudo actualizar"));
       }
-    } catch (e) { alert("Error al registrar"); }
+    } catch (e) {
+      alert("Error de conexión con el servidor");
+    }
+  };
+
+  const handleExportCSV = () => {
+    window.open(`${API_BASE}/reportes/exportar`, '_blank');
   };
 
   const handleRedeem = async (rewardId: string, costo: number) => {
     if (points < costo) return alert("Puntos insuficientes");
     alert(`¡Canje exitoso! Se han descontado ${costo} puntos.`);
-    // Aquí llamarías a tu endpoint de canje
     fetchData(userEmail, userRole!);
   };
 
@@ -112,7 +124,14 @@ export function App() {
 
       <main className="flex-1 p-10 overflow-auto">
         <div className="max-w-5xl mx-auto">
-          <h1 className="text-3xl font-black text-gray-800 mb-10">Panel de {userRole === 'admin' ? 'Control' : 'Reciclaje'}</h1>
+          <div className="flex justify-between items-center mb-10">
+            <h1 className="text-3xl font-black text-gray-800">Panel de {userRole === 'admin' ? 'Control' : 'Reciclaje'}</h1>
+            {userRole === 'admin' && (
+              <button onClick={handleExportCSV} className="bg-blue-600 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-blue-700 transition-all shadow-lg shadow-blue-100">
+                <FileText size={20} /> EXPORTAR CSV
+              </button>
+            )}
+          </div>
 
           {userRole === 'estudiante' ? (
             <div className="grid gap-6">

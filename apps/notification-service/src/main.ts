@@ -18,11 +18,11 @@ async function bootstrap() {
   // 3. Le conectamos el microservicio TCP (para que el Gateway le hable)
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.TCP,
-    options: { host: 'localhost', port: 3005 },
+    options: { host: '127.0.0.1', port: 3007 },
   });
 
   await app.startAllMicroservices();
-  await app.listen(3005); // Puerto HTTP para salud del sistema
-  console.log('🔔 Notification-Service listo en puerto 3005');
+  await app.listen(4005); // Puerto HTTP para salud del sistema
+  console.log('🔔 Notification-Service listo (TCP: 3007, HTTP: 4005)');
 }
 bootstrap();

@@ -4,10 +4,9 @@ import { join } from 'path';
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {
-  // Creamos la aplicación
   const app = await NestFactory.create(AppModule);
 
-  // 1. Configuración gRPC (Puerto 50051)
+  // gRPC - Canal de seguridad
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.GRPC,
     options: {
@@ -17,20 +16,17 @@ async function bootstrap() {
     },
   });
 
-  // 2. Configuración TCP (Puerto 4001) - RESPETANDO TU ESTRUCTURA
+  // TCP - Canal para el Gateway (ESTE ES EL QUE USA EL GATEWAY)
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.TCP,
     options: { host: '127.0.0.1', port: 4001 },
   });
 
-  // Iniciamos todos los microservicios (gRPC y TCP)
   await app.startAllMicroservices();
 
-  // Escuchamos peticiones HTTP en el 4001 para que no choque con el 3001 del User-Service
-  await app.listen(4001);
+  // HTTP - Escucha en el 4003 para no chocar con el 4001 TCP
+  await app.listen(4003);
 
-  console.log('🔐 Auth-Service ejecutándose en:');
-  console.log('   - gRPC: 127.0.0.1:50051');
-  console.log('   - TCP:  127.0.0.1:4001');
+  console.log('✅ Auth-Service conectado al Gateway en puerto 4001');
 }
 bootstrap();

@@ -7,7 +7,7 @@ export class AppController implements OnModuleInit {
   private authGrpcService: any;
 
   constructor(
-    @Inject('AUTH_PACKAGE') private readonly authClient: ClientGrpc,
+    @Inject('AUTH_PACKAGE') private readonly authClient: any,
     @Inject('USER_SERVICE') private readonly userClient: ClientProxy,
     @Inject('AUTH_SERVICE') private readonly authTcpClient: ClientProxy,
     @Inject('IOT_SERVICE') private readonly iotClient: ClientProxy,
@@ -21,7 +21,8 @@ export class AppController implements OnModuleInit {
   ) { }
 
   onModuleInit() {
-    this.getGrpcService();
+    //this.getGrpcService();
+    console.log('🚀 Gateway: Bypass gRPC activo para pruebas');
   }
 
   private getGrpcService() {
@@ -89,15 +90,20 @@ export class AppController implements OnModuleInit {
     return firstValueFrom(this.userClient.send({ cmd: 'get_user_profile' }, { email }));
   }
 
-  @Get('sumar-puntos')
-  async sumarPuntos(@Query('token') token: string, @Query('puntos') puntos: number, @Query('email') email: string) {
-    const service = this.getGrpcService();
-    const auth = await firstValueFrom(service.ValidateToken({ token: token || '' }));
-    if (!auth || !auth.valid) throw new UnauthorizedException('Token inválido');
+  // apps/api-gateway/src/app/app.controller.ts
 
-    return firstValueFrom(
-      this.userClient.send({ cmd: 'add_points' }, { email, puntos: Number(puntos) })
-    );
+  // apps/api-gateway/src/app/app.controller.ts
+
+  @Get('sumar')
+  async sumarPuntosBypass(@Query('puntos') puntos: string, @Query('email') email: string) {
+    try {
+      const respuesta = await firstValueFrom(
+        this.userClient.send({ cmd: 'add_points' }, { email, puntos: Number(puntos) })
+      );
+      return respuesta; // Aquí ya viaja el { status: 'Success' }
+    } catch (e) {
+      return { status: 'Error' };
+    }
   }
 
   @Get('reportes/mensual')
@@ -118,4 +124,11 @@ export class AppController implements OnModuleInit {
       return { status: 'Gateway OK', services: 'Sincronizando...' };
     }
   }
+
+  @Post('depositar')
+  async registrarDeposito(@Body() data: { email: string, puntos: number }) {
+    console.log('[Gateway] Redirigiendo depósito para:', data.email);
+    return this.depositClient.send({ cmd: 'depositar_botella' }, data);
+  }
+
 }
