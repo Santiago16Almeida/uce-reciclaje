@@ -19,7 +19,7 @@ export class AppService {
       return {
         status: 'EXITOSO',
         mensaje: `Has canjeado un ${premio.nombre}`,
-        costo: premio.costo // <--- Importante devolver el costo
+        costo: premio.costo
       };
     }
     return { status: 'ERROR', mensaje: 'Puntos insuficientes' };

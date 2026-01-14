@@ -6,7 +6,6 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) { }
 
-  // Corregido: Pasamos 'data' (el objeto) en lugar de solo 'data.token'
   @GrpcMethod('AuthService', 'ValidateToken')
   async validateToken(data: { token: string }) {
     const result = await this.appService.validateToken(data);

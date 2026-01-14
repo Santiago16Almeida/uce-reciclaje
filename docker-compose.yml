@@ -32,7 +32,7 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
-  # MENSAJERÍA: Kafka sive para la mensajeria
+  # MENSAJERÍA: Kafka sirve para la mensajeria
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     container_name: uce-kafka

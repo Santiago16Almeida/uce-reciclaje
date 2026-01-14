@@ -15,8 +15,6 @@ export class AppController {
   @MessagePattern({ cmd: 'export_csv' })
   exportarDatos(@Payload() usuarios: any[]) {
     console.log('--- REPORT SERVICE: Generando CSV con datos reales ---');
-    // ANTES: Aquí tenías el texto de "Agustin" quemado.
-    // AHORA: Llamamos al service con los datos que vienen del Gateway.
     return this.appService.generarCSV(usuarios);
   }
 }

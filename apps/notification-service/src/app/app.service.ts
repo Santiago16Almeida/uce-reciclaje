@@ -5,7 +5,7 @@ export class AppService {
   private readonly logger = new Logger(AppService.name);
 
   enviarNotificacion(data: any) {
-    // REQUISITO 16: Lógica de negocio activada por evento
+    //Lógica de negocio activada por evento
     const { userId, puntos } = data;
 
     this.logger.log(`[EMAIL SIMULATED] Enviando correo a: ${userId}`);

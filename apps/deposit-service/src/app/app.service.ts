@@ -8,7 +8,6 @@ export class AppService implements OnModuleInit {
   ) { }
 
   async onModuleInit() {
-    // Solo conectamos, eliminamos el subscribeToResponseOf que daba error
     await this.kafkaClient.connect();
     console.log('[Deposit-Service] Conectado a Kafka');
   }
@@ -16,9 +15,8 @@ export class AppService implements OnModuleInit {
   enviarEventoReciclaje(email: string, puntos: number) {
     console.log(`[Deposit-Service] Emitiendo evento a Kafka para: ${email}`);
 
-    // EL NOMBRE DEBE SER IGUAL AL DEL USER SERVICE
     return this.kafkaClient.emit('botella_nueva', {
-      email: email, // Usamos email para que el User Service lo encuentre
+      email: email,
       puntos: puntos,
       fecha: new Date().toISOString()
     });

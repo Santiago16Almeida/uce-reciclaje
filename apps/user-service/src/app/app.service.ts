@@ -44,12 +44,10 @@ export class AppService {
   }
 
   async findAll() {
-    console.log('[User-Service] Extrayendo lista completa para el Admin...');
-    // Opción A: Mostrar todos (incluyendo admins)
-    return await this.userRepository.find({ order: { puntos: 'DESC' } });
-
-    // Opción B (Recomendada): Mostrar solo estudiantes en el ranking
-    // return await this.userRepository.find({ where: { rol: 'estudiante' }, order: { puntos: 'DESC' } });
+    return await this.userRepository.find({
+      where: { rol: 'estudiante' },
+      order: { puntos: 'DESC' }
+    });
   }
 
 }

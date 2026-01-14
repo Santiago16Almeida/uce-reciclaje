@@ -7,7 +7,7 @@ import { User } from './user.entity';
 
 @Module({
   imports: [
-    // 1. Conexión a Base de Datos (Requisito 11)
+    // Conexión a DB
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: '127.0.0.1',
@@ -16,11 +16,11 @@ import { User } from './user.entity';
       password: 'uce_password',
       database: 'uce_users_db',
       entities: [User],
-      synchronize: true, // Crea las tablas automáticamente
+      synchronize: true,
     }),
     TypeOrmModule.forFeature([User]),
 
-    // 2. Conexión a Kafka (Requisito 15)
+    // Conexión a Kafka
     ClientsModule.register([
       {
         name: 'KAFKA_SERVICE',

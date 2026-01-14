@@ -3,10 +3,9 @@ import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {
-  // 1. Creamos la app normal
   const app = await NestFactory.create(AppModule);
 
-  // 2. Le conectamos el microservicio KAFKA (para eventos)
+  // Se activa servicio kafka
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.KAFKA,
     options: {
@@ -15,7 +14,6 @@ async function bootstrap() {
     },
   });
 
-  // 3. Le conectamos el microservicio TCP (para que el Gateway le hable)
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.TCP,
     options: { host: '127.0.0.1', port: 3007 },

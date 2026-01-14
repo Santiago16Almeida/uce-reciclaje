@@ -6,10 +6,9 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) { }
 
-  // Este es el "oído" que escucha a Kafka
+  // Escucha al Kafa
   @EventPattern('uce.reciclaje.botella_depositada')
   async manejarEventoAuditoria(@Payload() data: any) {
-    // Convertimos la data si viene como string (común en Kafka)
     const payload = typeof data === 'string' ? JSON.parse(data) : data;
     return await this.appService.crearLog(payload);
   }

@@ -8,7 +8,6 @@ export class AppController {
 
   @MessagePattern({ cmd: 'get_catalog' })
   getData() {
-    // CAMBIAMOS getData() POR obtenerCatalogo()
     return this.appService.obtenerCatalogo();
   }
 

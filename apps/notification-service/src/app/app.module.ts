@@ -5,7 +5,7 @@ import { AppService } from './app.service';
 
 @Module({
   imports: [
-    // REQUISITO 15: Conexión a Kafka para recibir notificaciones
+    //Conexión a Kafka para recibir notificaciones
     ClientsModule.register([
       {
         name: 'KAFKA_SERVICE',
