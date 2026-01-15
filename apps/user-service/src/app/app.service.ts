@@ -37,12 +37,12 @@ export class AppService {
     let premioLogrado = null;
 
     // Determinamos acorde a los canjes
-    if (usuario.puntos >= 100) {
-      premioLogrado = "Pase de Parqueo Semanal";
-    } else if (usuario.puntos >= 50) {
-      premioLogrado = "Bono de Comedor Universitario";
-    } else if (usuario.puntos >= 10) {
-      premioLogrado = "Vale de 10 Copias Gratis";
+    if (usuario.puntos === 100) {
+      premioLogrado = "Vale un Parqueadero Preferencial";
+    } else if (usuario.puntos === 50) {
+      premioLogrado = "Vale un Ticket Comedor UCE";
+    } else if (usuario.puntos === 10) {
+      premioLogrado = "Vale Copia Gratis Biblioteca";
     }
 
     // Si el usuario alcanzó 10 puntos, disparamos n8n
