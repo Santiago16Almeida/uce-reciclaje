@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Recycle, Trophy, LogOut, FileText, Coins, Gift } from 'lucide-react';
+import { Recycle, Trophy, LogOut, FileText, Coins, Gift, Activity } from 'lucide-react';
 
 const API_BASE = 'http://localhost:3000/api';
 
@@ -16,6 +16,9 @@ export function App() {
   const [reporte, setReporte] = useState<any>({ totalBotellas: 0, ahorroCO2: '0kg', estudianteTop: '---' });
   const [formData, setFormData] = useState({ email: '', password: '', nombre: '', role: 'estudiante' });
 
+  // NUEVO: Estado para la salud del sistema
+  const [systemHealth, setSystemHealth] = useState<{ status: string, uptime: number } | null>(null);
+
   const fetchData = async (email: string, role: string) => {
     try {
       // Cargar Perfil del Usuario
@@ -29,20 +32,33 @@ export function App() {
       const dataRewards = await resRewards.json();
       setRecompensas(Array.isArray(dataRewards) ? dataRewards : []);
 
-      // Carga Ranking y Reporte Dinámico
+      // Carga Ranking, Reporte Dinámico y Salud si es Admin
       if (role === 'admin') {
         const resRanking = await fetch(`${API_BASE}/usuarios/todos`);
         const dataRank = await resRanking.json();
-        // Ordenar ranking de mayor a menor puntos
         const sortedRank = Array.isArray(dataRank) ? dataRank.sort((a: any, b: any) => b.puntos - a.puntos) : [];
         setRanking(sortedRank);
 
         const resReport = await fetch(`${API_BASE}/reportes/mensual`);
         const dataReport = await resReport.json();
         setReporte(dataReport);
+
+        // NUEVO: Consulta de Salud del Sistema
+        fetchHealth();
       }
     } catch (e) {
       console.error("Error cargando datos dinámicos", e);
+    }
+  };
+
+  // NUEVA FUNCIÓN: Consulta al Microservicio de Salud a través del Gateway
+  const fetchHealth = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/health-check`);
+      const data = await res.json();
+      setSystemHealth(data);
+    } catch (e) {
+      setSystemHealth({ status: 'DOWN', uptime: 0 });
     }
   };
 
@@ -243,6 +259,24 @@ export function App() {
           ) : (
             /* VISTA ADMIN */
             <div className="grid gap-8">
+
+              {/* NUEVO: Indicador Visual de Salud del Sistema */}
+              <div className="flex items-center gap-4 bg-white p-5 rounded-3xl border border-gray-100 shadow-sm w-fit">
+                <div className="bg-gray-50 p-3 rounded-2xl">
+                  <Activity size={24} className={systemHealth?.status === 'UP' ? 'text-green-500' : 'text-red-500'} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${systemHealth?.status === 'UP' ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Estado de Microservicios</p>
+                  </div>
+                  <p className="font-black text-gray-800">
+                    SISTEMA: {systemHealth?.status || 'VERIFICANDO...'}
+                    {systemHealth?.uptime && <span className="text-gray-400 font-medium ml-2 text-xs">| UP: {(systemHealth.uptime / 60).toFixed(1)}m</span>}
+                  </p>
+                </div>
+              </div>
+
               {/* Tarjetas de Reporte */}
               <div className="grid grid-cols-3 gap-6">
                 <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">

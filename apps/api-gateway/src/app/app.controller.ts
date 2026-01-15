@@ -135,7 +135,7 @@ export class AppController implements OnModuleInit {
     return firstValueFrom(this.rewardClient.send({ cmd: 'get_catalog' }, {}));
   }
 
-  @Get('health/status')
+  @Get('health-check')
   async getHealth() {
     try {
       return await firstValueFrom(this.healthClient.send({ cmd: 'get_status' }, {}));
