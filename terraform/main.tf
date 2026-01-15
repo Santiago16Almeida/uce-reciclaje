@@ -70,7 +70,7 @@ resource "aws_instance" "bastion" {
   # iam_instance_profile = "LabInstanceProfile" 
 
   tags = {
-    Name = "UCE-JumpBox-Bastion"
+    Name = "UCE-Despliegue-QA"
   }
 }
 
