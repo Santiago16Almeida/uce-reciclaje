@@ -1,0 +1,41 @@
+name: CI Microservices Validation
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-all-services:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configurar Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Instalar dependencias
+        run: npm ci
+
+        # Verificar que todo el workspace está correcto
+      - name: Nx Workspace Lint
+        run: npx nx run-many -t lint
+
+      # Compilar los 10 servicios estándar
+      - name: Build Servicios Estándar
+        run: |
+          npx nx run-many -t build --projects=user-service,report-service,audit-service,deposit-service,health-service,iot-gateway,notification-service,reward-service,api-gateway,web-dashboard
+
+      # Compilar el Auth Service con tu comando especial
+      - name: Build Auth Service (Configuración Especial)
+        run: npx nx build auth-service
+        env:
+          NODE_OPTIONS: "--no-warnings"
