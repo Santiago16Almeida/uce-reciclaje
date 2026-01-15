@@ -33,12 +33,23 @@ export class AppService {
     const guardado = await this.userRepository.save(usuario);
     console.log(`[User-Service] DB Actualizada: ${email} ahora tiene ${usuario.puntos}`);
 
-    // N8N
-    // Si se alcanza o supera los 50 puntos notificamos al n8n
-    if (usuario.puntos >= 50) {
-      console.log(`[User-Service] 🚀 Meta alcanzada (${usuario.puntos}). Disparando n8n...`);
+    //NOTIFICACIONES vIA N8N
+    let premioLogrado = null;
 
-      // Envio de los datos a la Test URL de n8n
+    // Determinamos acorde a los canjes
+    if (usuario.puntos >= 100) {
+      premioLogrado = "Pase de Parqueo Semanal";
+    } else if (usuario.puntos >= 50) {
+      premioLogrado = "Bono de Comedor Universitario";
+    } else if (usuario.puntos >= 10) {
+      premioLogrado = "Vale de 10 Copias Gratis";
+    }
+
+    // Si el usuario alcanzó 10 puntos, disparamos n8n
+    if (premioLogrado) {
+      console.log(`[User-Service] 🚀 Meta alcanzada (${usuario.puntos} pts). Premio: ${premioLogrado}`);
+
+      //URL n8n
       fetch('http://localhost:5678/webhook/alerta-reciclaje', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -46,13 +57,12 @@ export class AppService {
           estudiante: usuario.nombre,
           email: usuario.email,
           puntosActuales: usuario.puntos,
+          premio: premioLogrado,
           facultad: "UCE - Ingeniería",
-          fecha: new Date().toISOString()
+          fecha: new Date().toLocaleDateString()
         })
       }).catch(err => console.error('⚠️ Error al conectar con n8n:', err.message));
     }
-    // ----------------------------------
-
     return { ...guardado, status: 'Success' };
   }
 
