@@ -29,13 +29,30 @@ jobs:
       - name: Nx Workspace Lint
         run: npx nx run-many -t lint
 
-      # Compilar los 10 servicios estándar
+      # Ejecuta los 10 microservicios
       - name: Build Servicios Estándar
         run: |
           npx nx run-many -t build --projects=user-service,report-service,audit-service,deposit-service,health-service,iot-gateway,notification-service,reward-service,api-gateway,web-dashboard
 
-      # Compilar el Auth Service con tu comando especial
+      # Ejecuta el auth service de manera especial
       - name: Build Auth Service (Configuración Especial)
         run: npx nx build auth-service
         env:
           NODE_OPTIONS: "--no-warnings"
+
+      # Configuración Infraestructura con Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan & Apply
+        run: |
+          terraform plan
+          # Si quieres que se cree en AWS automáticamente, usa: terraform apply -auto-approve
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_REGION: "us-east-1"
