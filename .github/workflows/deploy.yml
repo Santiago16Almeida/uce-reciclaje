@@ -48,4 +48,3 @@ jobs:
         run: |
           terraform init -backend=false
           terraform validate
-          sisisisisi
