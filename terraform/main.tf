@@ -110,7 +110,7 @@ resource "aws_lb" "uce_alb" {
 }
 
 resource "aws_lb_target_group" "api_tg" {
-  name     = "api-gateway-tg"
+  name     = "api-gateway-tg-v2"
   port     = 3000
   protocol = "HTTP"
   vpc_id   = aws_vpc.uce_vpc.id
