@@ -132,15 +132,12 @@ resource "aws_lb_listener" "http" {
 
 # 6. EC2 Bastion
 resource "aws_instance" "bastion" {
-  ami                         = "ami-0440d3b780d96b29d"
+  # Cambiamos la AMI a Amazon Linux 2023 (us-east-1)
+  ami                         = "ami-05b10e08d247fb927" 
   instance_type               = "t2.micro"
   subnet_id                   = aws_subnet.public_sub_1.id
   vpc_security_group_ids      = [aws_security_group.bastion_sg.id]
-  
-  # Usar llave por defecto de AWS Academy
   key_name                    = "vockey" 
-  
-  # Asegurar IP pública para acceso externo
   associate_public_ip_address = true
 
   tags = { Name = "UCE-Despliegue-QA" }
