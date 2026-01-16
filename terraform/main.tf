@@ -162,5 +162,5 @@ resource "aws_ecr_repository" "ace_monorepo_final" {
 
 # URL para dockerizar
 output "auth_ecr_url" {
-  value = aws_ecr_repository.auth_service_repo.repository_url
+  value = aws_ecr_repository.uce_monorepo_final.repository_url
 }
