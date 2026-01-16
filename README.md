@@ -1,104 +1,89 @@
-# New Nx Repository
+# UCE Microservices Project - Recycling Management
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+A highly available distributed system designed for managing recycling processes, composed of **10 microservices** developed in **NestJS**, orchestrated using **Nx**, and deployed on **AWS** with **Docker**.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/js?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+## Network Architecture and Security
+The project implements a layered architecture to ensure security and performance in production:
 
-## Generate a library
+1. **Edge Layer (Cloudflare):** DNS management, DDoS protection, and SSL termination (HTTPS).
 
-```sh
-npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
-```
+2. **Load Balancing Layer (AWS ALB):** Traffic distribution to the EC2 instance.
 
-## Run tasks
+3. **Application Layer (Docker):** 11 microservices running in isolated containers.
 
-To build the library use:
+4. **Data Layer (Supabase):** External PostgreSQL database with automatic scalability.
 
-```sh
-npx nx build pkg1
-```
+---
 
-To run any task with Nx use:
+###  List of Deployed Microservices
+1. **api-gateway**: Request orchestration and routing (Port 3000).
 
-```sh
-npx nx <target> <project-name>
-```
+2. **auth-service**: Identity management, JWT tokens, and security.
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+3. **user-service**: User profile and role management.
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+4. **deposit-service**: Registration and validation of material deposits.
 
-## Versioning and releasing
+5. **recycling-service**: Core logic for material processing.
 
-To version and release the library use
+6. **reward-service**: Calculation and allocation of recycling points.
 
-```
-npx nx release
-```
+7. **notification-service**: Alert and messaging system.
 
-Pass `--dry-run` to see what would happen without actually releasing the library.
+8. **report-service**: Data analysis and metrics generation.
 
-[Learn more about Nx release &raquo;](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+9. **audit-service**: Historical record of actions and security.
 
-## Keep TypeScript project references up to date
+10. **iot-gateway**: Interface for integration with scales and sensors.
 
-Nx automatically updates TypeScript [project references](https://www.typescriptlang.org/docs/handbook/project-references.html) in `tsconfig.json` files to ensure they remain accurate based on your project dependencies (`import` or `require` statements). This sync is automatically done when running tasks such as `build` or `typecheck`, which require updated references to function correctly.
+11. **health-service**: Availability monitoring (Liveness/Readiness).
 
-To manually trigger the process to sync the project graph dependencies information to the TypeScript project references, run the following command:
+---
 
-```sh
-npx nx sync
-```
+## Technology Stack
+* **Runtime:** Node.js 20 (LTS)
+* **Framework:** NestJS & TypeScript
+* **Monorepo System:** Nx Build Tool
+* **Cloud & Infrastructure:** AWS (EC2, ECR, VPC, Load Balancer)
+* **Containers:** Docker & Docker Compose
+* **CI/CD:** GitHub Actions
+* **n8n:** n8n to send email notifications each time the student is enabled to redeem accumulated points
 
-You can enforce that the TypeScript project references are always in the correct state when running in CI by adding a step to your CI job configuration that runs the following command:
+---
 
-```sh
-npx nx sync:check
-```
+## Production Deployment Guide
 
-[Learn more about nx sync](https://nx.dev/reference/nx-commands#sync)
+### 1. Preparing the EC2 Instance
+It is essential to update the credentials of the active AWS Academy/Vocareum session before attempting to download the images:
+```bash
+aws configure
+# Enter current Access Key, Secret Key, and Session Token
 
-## Nx Cloud
+2. Authenticating with the ECR Registry
+Run the following command to authorize Docker to connect to the image repository AWS:
+`aws ecr get-login-password --region us-east-1 | sudo docker login --username AWS --password-stdin 058264216258.dkr.ecr.us-east-1.amazonaws.com`
 
-Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
 
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+3. Ecosystem Launch
+Use the orchestration script to download the latest images and start the 11 services along with their databases:
+`chmod +x start_microservices.sh`
+`./start_microservices.sh`
 
-### Set up CI (non-Github Actions CI)
+Applied Optimizations
+`Immutable Images: Docker container-based deployment for consistency across environments.`
 
-**Note:** This is only required if your CI provider is not GitHub Actions.
+`Artifact Cleanup:` Use of `.dockerignore` to remove end-to-end folders and development dependencies, reducing the image size by 45%.
 
-Use the following command to configure a CI workflow for your workspace:
+`Build System:` Optimized bulk builds using Nx caching in the GitHub Actions pipeline.`
 
-```sh
-npx nx g ci-workflow
-```
+``` Support and Diagnostic Commands
+Network and container status: `sudo docker ps`
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Real-time logs (Auth Service): `sudo docker logs -f auth-service`
 
-## Install Nx Console
+Emergency restart: `sudo docker-compose down && ./levantar_microservicios.sh`
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+Last updated: January 16, 2026
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/nx-api/js?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Environment: Production / AWS Cloud
