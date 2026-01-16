@@ -71,13 +71,13 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          # 1. Definimos las variables localmente para que no fallen
-          REGISTRY=${{ steps.login-ecr.registry }}
-          REPOSITORY=uce-proyecto-repo
-          IMAGE_TAG=latest
+          # Usamos directamente tu URL de ECR confirmada
+          REPO_URL="058264216258.dkr.ecr.us-east-1.amazonaws.com/uce-proyecto-repo"
           
-          # 2. Construimos la imagen (Asegúrate que el Dockerfile esté en la raíz)
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          echo "Iniciando build para: $REPO_URL"
           
-          # 3. Subimos la imagen a AWS
-          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          # Construimos la imagen (el punto final es vital, indica la raíz)
+          docker build -t $REPO_URL:latest .
+          
+          # Subimos la imagen
+          docker push $REPO_URL:latest
