@@ -1,0 +1,9 @@
+# Ignorar carpetas de pruebas e2e en la imagen final
+dist/apps/*-e2e
+apps/*-e2e
+
+# También ignoramos logs y dependencias locales
+node_modules
+npm-debug.log
+.git
+.github

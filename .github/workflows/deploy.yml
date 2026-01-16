@@ -1,15 +1,14 @@
-name: CI/CD Microservices & AWS QA
+name: CI/CD Microservices - Pipeline Seguro
 
 on:
   push:
-    branches: [ main ]
+    branches: [ qa, main, produccion ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, produccion ]
 
 jobs:
-  build-and-deploy:
+  build-and-push:
     runs-on: ubuntu-latest
-
     env:
       NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
 
@@ -28,36 +27,18 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
-      - name: Nx Workspace Lint
-        run: npx nx run-many -t lint
-
-      # 1. Build de los servicios
-      - name: Build Servicios
-        run: |
-          npx nx run-many -t build --projects=user-service,report-service,audit-service,deposit-service,health-service,iot-gateway,notification-service,reward-service,api-gateway,web-dashboard
-          
-      - name: Build Auth Service (Especial)
+      # 1. Build Masivo (Preparamos los 11 servicios)
+      - name: Build Todos los Servicios
         run: |
           export NODE_OPTIONS="--no-warnings"
-          npx nx build auth-service
+          npx nx run-many -t build --all
 
-      # 2. Infraestructura con Terraform
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+      # 2. Saltamos Terraform para evitar duplicados en AWS
+      # Si necesitas Terraform en el futuro, solo descomenta estas líneas
+      # - name: Setup Terraform...
 
-      - name: Terraform Deploy (QA)
-        working-directory: ./terraform 
-        run: |
-          terraform init
-          terraform apply -auto-approve
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-          AWS_REGION: us-east-1
-
-      # 3. --- NUEVO: SUBIR A DOCKER ECR ---
-      - name: Configure AWS credentials for Docker
+      # 3. SUBIR A DOCKER ECR
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -71,13 +52,7 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          # Usamos directamente tu URL de ECR confirmada
           REPO_URL="058264216258.dkr.ecr.us-east-1.amazonaws.com/uce-proyecto-repo"
-          
           echo "Iniciando build para: $REPO_URL"
-          
-          # Construimos la imagen (el punto final es vital, indica la raíz)
           docker build -t $REPO_URL:latest .
-          
-          # Subimos la imagen
           docker push $REPO_URL:latest

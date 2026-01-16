@@ -1,15 +1,16 @@
 FROM node:18-alpine
-RUN npm install -g nx
-WORKDIR /app
-COPY package*.json ./
-COPY nx.json ./
-COPY tsconfig.base.json ./
-RUN npm install
-COPY . .
 
-# AQUÍ ESTÁ TU COMANDO ESPECIAL INTEGRADO
+WORKDIR /app
+
+# Copiamos package.json y instalamos solo lo necesario para ejecutar
+COPY package*.json ./
+RUN npm install --omit=dev
+
+# COPIAMOS TODO EL DIST (Aquí van los 11 servicios que GitHub ya compiló)
+COPY dist ./dist
+
+# OPCIONAL: Variable para evitar warnings molestos
 ENV NODE_OPTIONS="--no-warnings"
 
-# Nota: No ponemos el comando final aquí todavía para que sirva para los otros 10 servicios luego.
-EXPOSE 4001
-CMD ["npx", "nx", "serve", "auth-service", "--host", "0.0.0.0", "--no-watch"]
+# Por defecto iniciará el auth, pero el script de la EC2 lo sobreescribirá
+CMD ["node", "dist/apps/auth-service/main.js"]
