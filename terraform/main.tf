@@ -56,6 +56,7 @@ resource "aws_security_group" "bastion_sg" {
   name   = "bastion-sg-uce"
   vpc_id = aws_vpc.uce_vpc.id
 
+  # Regla para SSH (Puerto 22)
   ingress {
     from_port   = 22
     to_port     = 22
@@ -63,22 +64,11 @@ resource "aws_security_group" "bastion_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-resource "aws_security_group" "alb_sg" {
-  name   = "alb-sg-uce"
-  vpc_id = aws_vpc.uce_vpc.id
-
+  # NUEVA REGLA: Permitir PING para pruebas de diagnóstico
   ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
+    from_port   = -1
+    to_port     = -1
+    protocol    = "icmp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -122,11 +112,18 @@ resource "aws_lb_listener" "http" {
 
 # 6. EC2 Bastion
 resource "aws_instance" "bastion" {
-  ami                    = "ami-0440d3b780d96b29d"
-  instance_type          = "t2.micro"
-  subnet_id              = aws_subnet.public_sub_1.id
-  vpc_security_group_ids = [aws_security_group.bastion_sg.id]
-  tags                   = { Name = "UCE-Despliegue-QA" }
+  ami                         = "ami-0440d3b780d96b29d"
+  instance_type               = "t2.micro"
+  subnet_id                   = aws_subnet.public_sub_1.id
+  vpc_security_group_ids      = [aws_security_group.bastion_sg.id]
+  
+  # MEJORA: Asignamos la llave de AWS Academy para que el servicio SSH arranque
+  key_name                    = "vockey" 
+  
+  # MEJORA: Forzamos a que AWS nos asigne una IP pública real
+  associate_public_ip_address = true
+
+  tags = { Name = "UCE-Despliegue-QA" }
 }
 
 # 7. OUTPUT PARA VER LA IP
