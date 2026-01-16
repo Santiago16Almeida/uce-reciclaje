@@ -10,7 +10,7 @@ resource "aws_vpc" "uce_vpc" {
   tags                 = { Name = "uce-reciclaje-vpc" }
 }
 
-# 2. Subredes (Dos zonas para el Load Balancer)
+# 2. Subredes
 resource "aws_subnet" "public_sub_1" {
   vpc_id                  = aws_vpc.uce_vpc.id
   cidr_block              = "10.0.1.0/24"
@@ -56,7 +56,6 @@ resource "aws_security_group" "bastion_sg" {
   name   = "bastion-sg-uce"
   vpc_id = aws_vpc.uce_vpc.id
 
-  # Regla para SSH (Puerto 22)
   ingress {
     from_port   = 22
     to_port     = 22
@@ -64,7 +63,6 @@ resource "aws_security_group" "bastion_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Regla para permitir PING (ICMP) para diagnóstico
   ingress {
     from_port   = -1
     to_port     = -1
@@ -80,7 +78,6 @@ resource "aws_security_group" "bastion_sg" {
   }
 }
 
-# Security Group para el Balanceador (Restaurado para evitar el error de referencia)
 resource "aws_security_group" "alb_sg" {
   name   = "alb-sg-uce"
   vpc_id = aws_vpc.uce_vpc.id
@@ -132,7 +129,6 @@ resource "aws_lb_listener" "http" {
 
 # 6. EC2 Bastion
 resource "aws_instance" "bastion" {
-  # Cambiamos la AMI a Amazon Linux 2023 (us-east-1)
   ami                         = "ami-05b10e08d247fb927" 
   instance_type               = "t2.micro"
   subnet_id                   = aws_subnet.public_sub_1.id
@@ -143,24 +139,22 @@ resource "aws_instance" "bastion" {
   tags = { Name = "UCE-Despliegue-QA" }
 }
 
-# 7. OUTPUT PARA VER LA IP
-output "bastion_public_ip" {
-  value = aws_instance.bastion.public_ip
-}
-
-# --- REGISTRO PARA DOCKER ---
-
-resource "aws_ecr_repository" "ace_monorepo_final" {
+# 7. REGISTRO ECR (ALMACÉN DE DOCKER)
+resource "aws_ecr_repository" "uce_repo" {
   name                 = "uce-proyecto-repo"
   image_tag_mutability = "MUTABLE"
+  force_delete         = true
 
-  # AWS verifica virus o fallos de seguridad
   image_scanning_configuration {
     scan_on_push = true
   }
 }
 
-# URL para dockerizar
+# 8. OUTPUTS
+output "bastion_public_ip" {
+  value = aws_instance.bastion.public_ip
+}
+
 output "auth_ecr_url" {
-  value = aws_ecr_repository.uce_monorepo_final.repository_url
+  value = aws_ecr_repository.uce_repo.repository_url
 }
