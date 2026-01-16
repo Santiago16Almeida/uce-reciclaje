@@ -70,12 +70,14 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Build and Push Docker Image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.registry }}
-          ECR_REPOSITORY: uce-proyecto-repo
-          IMAGE_TAG: latest
         run: |
-          # Construimos la imagen usando el Dockerfile de la raíz
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          # Subimos al repositorio
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          # 1. Definimos las variables localmente para que no fallen
+          REGISTRY=${{ steps.login-ecr.registry }}
+          REPOSITORY=uce-proyecto-repo
+          IMAGE_TAG=latest
+          
+          # 2. Construimos la imagen (Asegúrate que el Dockerfile esté en la raíz)
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          
+          # 3. Subimos la imagen a AWS
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
