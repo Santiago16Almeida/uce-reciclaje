@@ -148,6 +148,7 @@ resource "aws_ecr_repository" "uce_repo" {
   image_scanning_configuration {
     scan_on_push = true
   }
+  
 }
 
 # 8. OUTPUTS
