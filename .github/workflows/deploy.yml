@@ -51,8 +51,15 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Build and Push Docker Image
+        env:
+          # Esto le pasa las credenciales directamente al comando docker
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          REPO_URL="058264216258.dkr.ecr.us-east-1.amazonaws.com/uce-proyecto-repo"
-          echo "Iniciando build para: $REPO_URL"
-          docker build -t $REPO_URL:latest .
-          docker push $REPO_URL:latest
+          REPO_NAME="uce-proyecto-repo"
+          echo "Iniciando build para: $ECR_REGISTRY/$REPO_NAME"
+          
+          # Construimos usando la variable dinámica
+          docker build -t $ECR_REGISTRY/$REPO_NAME:latest .
+          
+          # Subimos usando la variable dinámica
+          docker push $ECR_REGISTRY/$REPO_NAME:latest
