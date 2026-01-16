@@ -150,11 +150,11 @@ output "bastion_public_ip" {
 
 # --- REGISTRO PARA DOCKER ---
 
-resource "aws_ecr_repository" "auth_service_repo" {
-  name                 = "auth-service-repo"
+resource "aws_ecr_repository" "ace_monorepo_final" {
+  name                 = "uce-proyecto-repo"
   image_tag_mutability = "MUTABLE"
 
-  # AWS verfiica virus o fallos de seguridad
+  # AWS verifica virus o fallos de seguridad
   image_scanning_configuration {
     scan_on_push = true
   }
