@@ -64,11 +64,31 @@ resource "aws_security_group" "bastion_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # NUEVA REGLA: Permitir PING para pruebas de diagnóstico
+  # Regla para permitir PING (ICMP) para diagnóstico
   ingress {
     from_port   = -1
     to_port     = -1
     protocol    = "icmp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# Security Group para el Balanceador (Restaurado para evitar el error de referencia)
+resource "aws_security_group" "alb_sg" {
+  name   = "alb-sg-uce"
+  vpc_id = aws_vpc.uce_vpc.id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -117,10 +137,10 @@ resource "aws_instance" "bastion" {
   subnet_id                   = aws_subnet.public_sub_1.id
   vpc_security_group_ids      = [aws_security_group.bastion_sg.id]
   
-  # MEJORA: Asignamos la llave de AWS Academy para que el servicio SSH arranque
+  # Usar llave por defecto de AWS Academy
   key_name                    = "vockey" 
   
-  # MEJORA: Forzamos a que AWS nos asigne una IP pública real
+  # Asegurar IP pública para acceso externo
   associate_public_ip_address = true
 
   tags = { Name = "UCE-Despliegue-QA" }
