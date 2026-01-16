@@ -12,20 +12,23 @@ async function bootstrap() {
     options: {
       package: 'auth',
       protoPath: join(__dirname, 'assets', 'auth.proto'),
-      url: '127.0.0.1:50051',
+      // Cambiamos 127.0.0.1 por 0.0.0.0 para que sea visible en la red
+      url: '0.0.0.0:50051',
     },
   });
 
   // TCP - Canal para el Gateway
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.TCP,
-    options: { host: '127.0.0.1', port: 4001 },
+    // Escuchamos en 0.0.0.0
+    options: { host: '0.0.0.0', port: 4001 },
   });
 
   await app.startAllMicroservices();
 
-  await app.listen(4003);
+  // Escuchamos en el puerto 4003 (HTTP)
+  await app.listen(4003, '0.0.0.0');
 
-  console.log('✅ Auth-Service conectado al Gateway en puerto 4001');
+  console.log('✅ Auth-Service iniciado y escuchando en 0.0.0.0');
 }
 bootstrap();

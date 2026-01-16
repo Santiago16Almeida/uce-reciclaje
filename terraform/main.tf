@@ -147,3 +147,20 @@ resource "aws_instance" "bastion" {
 output "bastion_public_ip" {
   value = aws_instance.bastion.public_ip
 }
+
+# --- REGISTRO PARA DOCKER ---
+
+resource "aws_ecr_repository" "auth_service_repo" {
+  name                 = "auth-service-repo"
+  image_tag_mutability = "MUTABLE"
+
+  # AWS verfiica virus o fallos de seguridad
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+# URL para dockerizar
+output "auth_ecr_url" {
+  value = aws_ecr_repository.auth_service_repo.repository_url
+}
