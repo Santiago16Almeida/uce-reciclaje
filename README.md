@@ -1,4 +1,4 @@
-# UCE Microservices Project - Recycling Management.
+# UCE Microservices Project - Recycling Management
 
 A highly available distributed system designed for managing recycling processes, composed of **10 microservices** developed in **NestJS**, orchestrated using **Nx**, and deployed on **AWS** with **Docker**.
 
