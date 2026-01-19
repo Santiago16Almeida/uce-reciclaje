@@ -55,7 +55,7 @@ jobs:
           # Esto obtiene la URL del registro (ej. 058264216258.dkr.ecr.us-east-1.amazonaws.com)
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           # Forzamos el nombre exacto que pusiste en Terraform
-          ECR_REPOSITORY: uce-proyecto-repo
+          ECR_REPOSITORY: uce-proyecto-nuevo
         run: |
           echo "Subiendo imagen a: $ECR_REGISTRY/$ECR_REPOSITORY"
           
