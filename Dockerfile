@@ -1,16 +1,18 @@
-FROM node:18-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 
-# Copiamos package.json y instalamos solo lo necesario para ejecutar
+# Copiamos los archivos de dependencias
 COPY package*.json ./
-RUN npm install --omit=dev
 
-# COPIAMOS TODO EL DIST (Aquí van los 11 servicios que GitHub ya compiló)
+# Instalamos TODAS las dependencias (incluyendo tslib que NestJS/Nx necesitan)
+RUN npm install
+
+# Copiamos la carpeta dist que GitHub Actions ya generó
 COPY dist ./dist
 
-# OPCIONAL: Variable para evitar warnings molestos
+# Variable de entorno para evitar warnings
 ENV NODE_OPTIONS="--no-warnings"
 
-# Por defecto iniciará el auth, pero el script de la EC2 lo sobreescribirá
+# No ponemos un CMD fijo tan rígido para que la EC2 pueda elegir cuál arrancar
 CMD ["node", "dist/apps/auth-service/main.js"]

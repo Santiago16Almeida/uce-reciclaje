@@ -30,8 +30,7 @@ jobs:
       # 1. Build Masivo (Preparamos los 11 servicios)
       - name: Build Todos los Servicios
         run: |
-          export NODE_OPTIONS="--no-warnings"
-          npx nx run-many -t build --all
+          npx nx run-many -t build --all --parallel=3
 
       # 2. Saltamos Terraform para evitar duplicados en AWS
       # Si necesitas Terraform en el futuro, solo descomenta estas líneas
