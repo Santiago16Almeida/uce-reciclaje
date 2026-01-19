@@ -1,9 +1,18 @@
-# Ignorar carpetas de pruebas e2e en la imagen final
-dist/apps/*-e2e
-apps/*-e2e
+FROM node:20-alpine
 
-# También ignoramos logs y dependencias locales
-node_modules
-npm-debug.log
-.git
-.github
+WORKDIR /app
+
+# 1. Instalar dependencias
+COPY package*.json ./
+RUN npm install --omit=dev
+
+# 2. Copiar TODO lo que se generó en el runner de GitHub
+# Esto incluye la carpeta dist completa con sus 11 servicios
+COPY . .
+
+# 3. Verificación durante el build
+RUN ls -la dist/apps
+
+ENV NODE_OPTIONS="--no-warnings"
+
+CMD ["node", "dist/apps/auth-service/main.js"]
