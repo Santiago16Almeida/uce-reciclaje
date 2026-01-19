@@ -30,17 +30,20 @@ jobs:
       - name: Build de Microservicios
         run: |
           export NODE_OPTIONS="--no-warnings"
-          npx nx build auth-service
-          npx nx build api-gateway
-          npx nx build audit-service
-          npx nx build deposit-service
-          npx nx build iot-gateway
-          npx nx build notification-service
-          npx nx build report-service
-          npx nx build reward-service
-          npx nx build user-service
-          npx nx build health-service
-          npx nx build web-dashboard
+          npx nx build auth-service --delete-output-path=false
+          npx nx build api-gateway --delete-output-path=false
+          npx nx build audit-service --delete-output-path=false
+          npx nx build deposit-service --delete-output-path=false
+          npx nx build iot-gateway --delete-output-path=false
+          npx nx build notification-service --delete-output-path=false
+          npx nx build report-service --delete-output-path=false
+          npx nx build reward-service --delete-output-path=false
+          npx nx build user-service --delete-output-path=false
+          npx nx build health-service --delete-output-path=false
+          npx nx build web-dashboard --delete-output-path=false
+          
+          echo "VERIFICANDO SI YA SE ACUMULARON:"
+          ls -la dist/apps
 
       # 2. Saltamos Terraform para evitar duplicados en AWS
       # Si necesitas Terraform en el futuro, solo descomenta estas líneas
