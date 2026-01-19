@@ -6,12 +6,11 @@ import { UserAuth } from './auth.entity';
 
 @Module({
   imports: [
-    //Conexion con la DB
     TypeOrmModule.forRoot({
       type: 'postgres',
-      // Si existe la variable DB_HOST (en AWS), la usa. Si no, usa tu local.
-      host: process.env.DB_HOST || '127.0.0.1',
-      port: 5433,
+      // En AWS usamos el bridge de Docker para llegar al contenedor de Postgres
+      host: process.env.DB_HOST || '172.17.0.1',
+      port: parseInt(process.env.DB_PORT!) || 5433,
       username: 'uce_admin',
       password: 'uce_password',
       database: 'uce_users_db',

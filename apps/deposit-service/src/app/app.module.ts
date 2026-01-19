@@ -11,7 +11,8 @@ import { AppService } from './app.service';
         transport: Transport.KAFKA,
         options: {
           client: {
-            brokers: ['localhost:9092'],
+            // IP ESTÁTICA DE LA CUENTA 4
+            brokers: [process.env.KAFKA_BROKERS || '100.52.80.163:9092'],
           },
           consumer: {
             groupId: 'deposit-consumer',

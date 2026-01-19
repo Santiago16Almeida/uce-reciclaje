@@ -56,6 +56,7 @@ resource "aws_security_group" "bastion_sg" {
   name   = "bastion-sg-uce"
   vpc_id = aws_vpc.uce_vpc.id
 
+  # Acceso SSH (Para que puedas entrar por terminal)
   ingress {
     from_port   = 22
     to_port     = 22
@@ -63,13 +64,32 @@ resource "aws_security_group" "bastion_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # --- PUERTOS PARA MICROSERVICIOS ---
+  # Esto permite que el Gateway (Cuenta 3) hable con los demás
   ingress {
-    from_port   = -1
-    to_port     = -1
-    protocol    = "icmp"
+    from_port   = 3000
+    to_port     = 3011
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # --- PUERTO PARA EL DASHBOARD ---
+  ingress {
+    from_port   = 5000
+    to_port     = 5000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # --- PUERTO PARA gRPC (Auth Service) ---
+  ingress {
+    from_port   = 50051
+    to_port     = 50051
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Salida a internet permitida para descargar Docker e imágenes
   egress {
     from_port   = 0
     to_port     = 0
@@ -107,7 +127,7 @@ resource "aws_lb" "uce_alb" {
 }
 
 resource "aws_lb_target_group" "api_tg" {
-  name     = "api-gateway-tg-v2"
+  name     = "api-gateway-tg-final"
   port     = 3000
   protocol = "HTTP"
   vpc_id   = aws_vpc.uce_vpc.id
@@ -141,7 +161,7 @@ resource "aws_instance" "bastion" {
 
 # 7. REGISTRO ECR (ALMACÉN DE DOCKER)
 resource "aws_ecr_repository" "uce_repo" {
-  name                 = "uce-proyecto-repo"
+  name                 = "uce-proyecto-nuevo"
   image_tag_mutability = "MUTABLE"
   force_delete         = true
 

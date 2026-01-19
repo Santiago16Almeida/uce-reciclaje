@@ -12,7 +12,8 @@ import { AppService } from './app.service';
         options: {
           client: {
             clientId: 'iot',
-            brokers: ['localhost:9092'],
+            // IP ESTÁTICA DE LA CUENTA 4
+            brokers: [process.env.KAFKA_BROKERS || '100.52.80.163:9092'],
           },
           consumer: {
             groupId: 'iot-consumer',

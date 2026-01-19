@@ -6,10 +6,13 @@ import { AppModule } from './app/app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // CANAL TCP: El Gateway se conectará aquí
+  // TCP: Aquí es donde el Gateway de la Cuenta 3 te buscará
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.TCP,
-    options: { host: '0.0.0.0', port: 3001 }, // Este puerto debe ser EXCLUSIVO para TCP
+    options: {
+      host: '0.0.0.0', // IMPORTANTE: 0.0.0.0 para que AWS permita tráfico externo
+      port: 3001
+    },
   });
 
   // CANAL KAFKA: (Tu configuración actual está bien)
@@ -24,8 +27,9 @@ async function bootstrap() {
   await app.startAllMicroservices();
 
   // CAMBIO CLAVE: Escuchar HTTP en el 4002 (o cualquier otro que no sea 3001)
-  await app.listen(4002);
+  const httpPort = process.env.PORT || 4002;
+  await app.listen(httpPort, '0.0.0.0');
 
-  console.log('✅ User-Service: Mensajes TCP en 3001 | API Interna en 4002');
+  console.log(`✅ User-Service: TCP en 3001 | HTTP en ${httpPort}`);
 }
 bootstrap();

@@ -5,14 +5,14 @@ import { AppService } from './app.service';
 
 @Module({
   imports: [
-    //Conexión a Kafka para recibir notificaciones
     ClientsModule.register([
       {
         name: 'KAFKA_SERVICE',
         transport: Transport.KAFKA,
         options: {
           client: {
-            brokers: ['localhost:9092'],
+            // Usamos la IP estática de la Cuenta 4 para consistencia total
+            brokers: [process.env.KAFKA_BROKERS || '100.52.80.163:9092'],
           },
           consumer: {
             groupId: 'notification-consumer',

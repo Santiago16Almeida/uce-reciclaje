@@ -6,8 +6,10 @@ import { Audit, AuditSchema } from './audit.schema';
 
 @Module({
   imports: [
-    //MongoDB para Auditoría
-    MongooseModule.forRoot('mongodb://127.0.0.1:27017/uce_audit_db'),
+    // MongoDB para Auditoría
+    // Usamos el bridge de Docker para conectar con el contenedor de Mongo en la misma instancia
+    MongooseModule.forRoot(process.env.MONGO_URI || 'mongodb://172.17.0.1:27017/uce_audit_db'),
+
     MongooseModule.forFeature([{ name: Audit.name, schema: AuditSchema }]),
   ],
   controllers: [AppController],
