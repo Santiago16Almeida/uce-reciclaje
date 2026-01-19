@@ -30,10 +30,12 @@ jobs:
       - name: Build de Microservicios
         run: |
           export NODE_OPTIONS="--no-warnings"
-          npx nx run-many -t build --all --parallel=3 --skip-nx-cache
+          rm -rf dist
           
-          echo "VERIFICANDO CONTENIDO FINAL:"
-          ls -la dist/apps
+          npx nx run-many -t build --all --parallel=1 --skip-nx-cache
+          
+          echo "ESTA ES LA VERDAD ABSOLUTA DE GITHUB (dist/apps):"
+          ls -R dist/apps
 
       # 2. Saltamos Terraform para evitar duplicados en AWS
       # Si necesitas Terraform en el futuro, solo descomenta estas líneas
