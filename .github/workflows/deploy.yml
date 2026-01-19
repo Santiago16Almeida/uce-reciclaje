@@ -27,10 +27,20 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
-      # 1. Build Masivo (Preparamos los 11 servicios)
-      - name: Build Todos los Servicios
+      - name: Build de Microservicios
         run: |
-          npx nx run-many -t build --all --parallel=3
+          export NODE_OPTIONS="--no-warnings"
+          npx nx build auth-service
+          npx nx build api-gateway
+          npx nx build audit-service
+          npx nx build deposit-service
+          npx nx build iot-gateway
+          npx nx build notification-service
+          npx nx build report-service
+          npx nx build reward-service
+          npx nx build user-service
+          npx nx build health-service
+          npx nx build web-dashboard
 
       # 2. Saltamos Terraform para evitar duplicados en AWS
       # Si necesitas Terraform en el futuro, solo descomenta estas líneas
