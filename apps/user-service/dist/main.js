@@ -37,11 +37,11 @@ exports.AppModule = AppModule = tslib_1.__decorate([
             typeorm_1.TypeOrmModule.forRoot({
                 type: 'postgres',
                 // IMPORTANTE: Dentro de la misma EC2 usamos la IP del bridge
-                host: process.env.DB_HOST || '172.17.0.1',
-                port: parseInt(process.env.DB_PORT) || 5433,
-                username: process.env.DB_USER || 'uce_admin',
-                password: process.env.DB_PASSWORD || 'uce_password',
-                database: process.env.DB_NAME || 'uce_users_db',
+                host: '44.223.184.82',
+                port: 5433,
+                username: 'uce_admin',
+                password: 'uce_password',
+                database: 'uce_users_db',
                 entities: [user_entity_1.User],
                 synchronize: true,
             }),
@@ -53,7 +53,7 @@ exports.AppModule = AppModule = tslib_1.__decorate([
                     transport: microservices_1.Transport.KAFKA,
                     options: {
                         client: {
-                            brokers: [process.env.KAFKA_BROKERS || '100.52.80.163:9092'],
+                            brokers: ['44.223.184.82:9092'],
                             initialRetryTime: 100,
                             retries: 8
                         },
@@ -223,6 +223,7 @@ const common_1 = __webpack_require__(5);
 const typeorm_1 = __webpack_require__(6);
 const typeorm_2 = __webpack_require__(9);
 const user_entity_1 = __webpack_require__(10);
+const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL;
 let AppService = class AppService {
     constructor(userRepository) {
         this.userRepository = userRepository;
@@ -260,23 +261,30 @@ let AppService = class AppService {
             premioLogrado = "Vale Copia Gratis Biblioteca";
         }
         // Si el usuario alcanzó 10 puntos, disparamos n8n
-        if (premioLogrado) {
+        if (premioLogrado && N8N_WEBHOOK_URL) {
             console.log(`[User-Service] 🚀 Meta alcanzada (${usuario.puntos} pts). Premio: ${premioLogrado}`);
-            //URL n8n
-            fetch('http://localhost:5678/webhook/alerta-reciclaje', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    estudiante: usuario.nombre,
-                    email: usuario.email,
-                    puntosActuales: usuario.puntos,
-                    premio: premioLogrado,
-                    facultad: "UCE - Ingeniería",
-                    fecha: new Date().toLocaleDateString()
-                })
-            }).catch(err => console.error('⚠️ Error al conectar con n8n:', err.message));
+            try {
+                await fetch(N8N_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        estudiante: usuario.nombre,
+                        email: usuario.email,
+                        puntosActuales: usuario.puntos,
+                        premio: premioLogrado,
+                        facultad: 'UCE - Ingeniería',
+                        fecha: new Date().toISOString(),
+                    }),
+                });
+            }
+            catch (error) {
+                console.error('⚠️ Error al conectar con n8n:', error.message || error);
+            }
         }
-        return { ...guardado, status: 'Success' };
+        return {
+            ...guardado,
+            status: 'Success',
+        };
     }
     async buscarPorEmail(email) {
         const user = await this.userRepository.findOne({ where: { email } });
@@ -404,7 +412,7 @@ async function bootstrap() {
     });*/
     await app.startAllMicroservices();
     // CAMBIO CLAVE: Escuchar HTTP en el 4002 (o cualquier otro que no sea 3001)
-    const httpPort = process.env.PORT || 4002;
+    const httpPort = 4002;
     await app.listen(httpPort, '0.0.0.0');
     console.log(`✅ User-Service: TCP en 3001 | HTTP en ${httpPort}`);
 }

@@ -11,11 +11,11 @@ import { User } from './user.entity';
     TypeOrmModule.forRoot({
       type: 'postgres',
       // IMPORTANTE: Dentro de la misma EC2 usamos la IP del bridge
-      host: process.env.DB_HOST || '172.17.0.1',
-      port: parseInt(process.env.DB_PORT!) || 5433,
-      username: process.env.DB_USER || 'uce_admin',
-      password: process.env.DB_PASSWORD || 'uce_password',
-      database: process.env.DB_NAME || 'uce_users_db',
+      host: '44.223.184.82',
+      port: 5433,
+      username: 'uce_admin',
+      password: 'uce_password',
+      database: 'uce_users_db',
       entities: [User],
       synchronize: true,
     }),
@@ -28,7 +28,7 @@ import { User } from './user.entity';
         transport: Transport.KAFKA,
         options: {
           client: {
-            brokers: [process.env.KAFKA_BROKERS || '100.52.80.163:9092'],
+            brokers: ['44.223.184.82:9092'],
             initialRetryTime: 100,
             retries: 8
           },

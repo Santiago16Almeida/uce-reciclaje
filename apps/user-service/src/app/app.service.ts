@@ -3,6 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 
+const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL;
+
+
 @Injectable()
 export class AppService {
   constructor(
@@ -46,24 +49,36 @@ export class AppService {
     }
 
     // Si el usuario alcanzó 10 puntos, disparamos n8n
-    if (premioLogrado) {
-      console.log(`[User-Service] 🚀 Meta alcanzada (${usuario.puntos} pts). Premio: ${premioLogrado}`);
+    if (premioLogrado && N8N_WEBHOOK_URL) {
+      console.log(
+        `[User-Service] 🚀 Meta alcanzada (${usuario.puntos} pts). Premio: ${premioLogrado}`
+      );
 
-      //URL n8n
-      fetch('http://localhost:5678/webhook/alerta-reciclaje', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          estudiante: usuario.nombre,
-          email: usuario.email,
-          puntosActuales: usuario.puntos,
-          premio: premioLogrado,
-          facultad: "UCE - Ingeniería",
-          fecha: new Date().toLocaleDateString()
-        })
-      }).catch(err => console.error('⚠️ Error al conectar con n8n:', err.message));
+      try {
+        await fetch(N8N_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            estudiante: usuario.nombre,
+            email: usuario.email,
+            puntosActuales: usuario.puntos,
+            premio: premioLogrado,
+            facultad: 'UCE - Ingeniería',
+            fecha: new Date().toISOString(),
+          }),
+        });
+      } catch (error) {
+        console.error(
+          '⚠️ Error al conectar con n8n:',
+          error.message || error
+        );
+      }
     }
-    return { ...guardado, status: 'Success' };
+
+    return {
+      ...guardado,
+      status: 'Success',
+    };
   }
 
   async buscarPorEmail(email: string) {

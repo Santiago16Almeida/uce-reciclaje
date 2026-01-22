@@ -1,0 +1,16 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# 1. Instalamos dependencias
+COPY package*.json ./
+RUN npm install --omit=dev
+
+# 2. Copiamos el código compilado (main.js)
+COPY apps/deposit-service/dist/main.js .
+
+# 3. Exponemos los puertos TCP (3002) y HTTP (4015)
+EXPOSE 3002
+EXPOSE 4015
+
+CMD ["node", "main.js"]

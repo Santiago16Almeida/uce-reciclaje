@@ -9,7 +9,7 @@ async function bootstrap() {
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.KAFKA,
     options: {
-      client: { brokers: [process.env.KAFKA_BROKERS || '100.52.80.163:9092'] },
+      client: { brokers: [process.env.KAFKA_BROKERS || '172.31.20.95:9092'] },
       consumer: { groupId: 'notification-consumer' },
     },
   });

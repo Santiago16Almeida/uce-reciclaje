@@ -16,3 +16,5 @@ async function bootstrap() {
   await app.listen(3000);
   console.log('🚀 Gateway operando en http://100.50.26.228:3000/api');
 }
+
+bootstrap();

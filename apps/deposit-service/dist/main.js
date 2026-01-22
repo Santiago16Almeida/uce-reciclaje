@@ -38,7 +38,7 @@ exports.AppModule = AppModule = tslib_1.__decorate([
                     options: {
                         client: {
                             // IP ESTÁTICA DE LA CUENTA 4
-                            brokers: [process.env.KAFKA_BROKERS || '100.52.80.163:9092'],
+                            brokers: ['44.223.184.82:9092'],
                         },
                         consumer: {
                             groupId: 'deposit-consumer',

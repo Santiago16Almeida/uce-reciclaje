@@ -1,0 +1,12 @@
+FROM nginx:stable-alpine
+
+# Borramos archivos por defecto
+RUN rm -rf /usr/share/nginx/html/*
+
+# COPIA DESDE LA RUTA REAL QUE ENCONTRAMOS
+COPY apps/web-dashboard/dist /usr/share/nginx/html
+
+# Puerto interno estándar de Nginx
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

@@ -1,0 +1,17 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# 1. Copiamos los archivos de dependencias para instalarlas en el contenedor
+# Esto evita el error de "Module Not Found" que tuvimos con el user-service
+COPY package*.json ./
+RUN npm install --omit=dev
+
+# 2. Copiamos el código compilado (el main.js que vimos en tu dist)
+# La ruta es relativa a la raíz del proyecto (donde ejecutas docker build)
+COPY apps/health-service/dist/main.js .
+
+# 3. Exponemos el puerto que definiste en el main.ts (3009)
+EXPOSE 3009
+
+CMD ["node", "main.js"]

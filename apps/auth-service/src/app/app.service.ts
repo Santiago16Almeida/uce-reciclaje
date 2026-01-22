@@ -15,7 +15,7 @@ export class AppService {
   ) {
     // Configuración de Redis para manejo de errores
     this.redis = new Redis({
-      host: 'localhost',
+      host: '44.223.184.82',
       port: 6379,
       lazyConnect: true,
       maxRetriesPerRequest: 1

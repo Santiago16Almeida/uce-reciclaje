@@ -91,9 +91,6 @@ export class AppController implements OnModuleInit {
     return firstValueFrom(this.userClient.send({ cmd: 'get_user_profile' }, { email }));
   }
 
-  // apps/api-gateway/src/app/app.controller.ts
-
-  // apps/api-gateway/src/app/app.controller.ts
 
   @Get('sumar')
   async sumarPuntosBypass(@Query('puntos') puntos: string, @Query('email') email: string) {

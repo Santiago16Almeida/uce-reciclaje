@@ -40,7 +40,7 @@ exports.AppModule = AppModule = tslib_1.__decorate([
         imports: [
             // MongoDB para Auditoría
             // Usamos el bridge de Docker para conectar con el contenedor de Mongo en la misma instancia
-            mongoose_1.MongooseModule.forRoot(process.env.MONGO_URI || 'mongodb://172.17.0.1:27017/uce_audit_db'),
+            mongoose_1.MongooseModule.forRoot('mongodb://44.223.184.82:27017/uce_audit_db'),
             mongoose_1.MongooseModule.forFeature([{ name: audit_schema_1.Audit.name, schema: audit_schema_1.AuditSchema }]),
         ],
         controllers: [app_controller_1.AppController],

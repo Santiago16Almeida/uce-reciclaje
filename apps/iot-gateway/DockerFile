@@ -1,0 +1,15 @@
+FROM node:18-alpine
+WORKDIR /app
+
+# 1. Instalamos dependencias
+COPY package*.json ./
+RUN npm install --omit=dev
+
+# 2. Copiamos el main.js compilado desde la ruta dist de la app
+COPY apps/iot-gateway/dist/main.js .
+
+# 3. Exponemos los puertos (TCP para el Gateway y HTTP para salud/sensores)
+EXPOSE 3011
+EXPOSE 4011
+
+CMD ["node", "main.js"]

@@ -173,7 +173,7 @@ resource "aws_ecr_repository" "uce_repo" {
 
 # 8. OUTPUTS
 output "bastion_public_ip" {
-  value = "3.234.125.204"
+  value = "52.200.64.213 "
 }
 
 output "auth_ecr_url" {

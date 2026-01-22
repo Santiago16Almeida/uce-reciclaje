@@ -27,7 +27,7 @@ async function bootstrap() {
   await app.startAllMicroservices();
 
   // CAMBIO CLAVE: Escuchar HTTP en el 4002 (o cualquier otro que no sea 3001)
-  const httpPort = process.env.PORT || 4002;
+  const httpPort = 4002;
   await app.listen(httpPort, '0.0.0.0');
 
   console.log(`✅ User-Service: TCP en 3001 | HTTP en ${httpPort}`);

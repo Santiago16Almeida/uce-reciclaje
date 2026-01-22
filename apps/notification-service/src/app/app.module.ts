@@ -12,7 +12,7 @@ import { AppService } from './app.service';
         options: {
           client: {
             // Usamos la IP estática de la Cuenta 4 para consistencia total
-            brokers: [process.env.KAFKA_BROKERS || '100.52.80.163:9092'],
+            brokers: ['172.31.20.95:9092'],
           },
           consumer: {
             groupId: 'notification-consumer',

@@ -1,0 +1,15 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# 1. Copiamos los archivos de dependencias
+COPY package*.json ./
+RUN npm install --omit=dev
+
+# 2. Copiamos el código compilado (el main.js que vimos en tu dist)
+COPY apps/reward-service/dist/main.js .
+
+# 3. Exponemos el puerto TCP que definiste en el main.ts (3006)
+EXPOSE 3006
+
+CMD ["node", "main.js"]

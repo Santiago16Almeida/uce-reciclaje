@@ -1,0 +1,16 @@
+FROM node:18-alpine
+WORKDIR /app
+
+# 1. Copiamos los archivos de dependencias del RAIZ del proyecto
+# Para que esto funcione, el build debe hacerse desde la carpeta 'uce-reciclaje'
+COPY package*.json ./
+
+# 2. Instalamos TODO el workspace
+RUN npm install
+
+# 3. Copiamos el código compilado de la aplicación
+# La ruta dist/main.js se refiere a la que está dentro de la carpeta del servicio
+COPY apps/notification-service/dist/main.js .
+
+EXPOSE 3004 4005
+CMD ["node", "main.js"]

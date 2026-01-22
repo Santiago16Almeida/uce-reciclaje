@@ -8,12 +8,11 @@ import { UserAuth } from './auth.entity';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      // En AWS usamos el bridge de Docker para llegar al contenedor de Postgres
-      host: process.env.DB_HOST || '172.17.0.1',
-      port: parseInt(process.env.DB_PORT!) || 5433,
-      username: 'uce_admin',
-      password: 'uce_password',
-      database: 'uce_users_db',
+      host: process.env.POSTGRES_HOST || '44.223.184.82',
+      port: parseInt(process.env.POSTGRES_PORT || '5433'),
+      username: process.env.POSTGRES_USER || 'uce_admin',
+      password: process.env.POSTGRES_PASSWORD || 'uce_password',
+      database: process.env.POSTGRES_DB || 'uce_users_db',
       entities: [UserAuth],
       synchronize: true,
     }),

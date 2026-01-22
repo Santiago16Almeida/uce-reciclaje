@@ -36,18 +36,18 @@ exports.AppModule = AppModule = tslib_1.__decorate([
                 {
                     name: 'AUTH_SERVICE', // El que usas con $env:NODE_OPTIONS
                     transport: microservices_1.Transport.TCP,
-                    options: { host: '3.234.125.204', port: 3002 },
+                    options: { host: '3.234.125.204', port: 4001 },
                 },
                 // --- CUENTA 2: IOT Y AUDITORÍA (52.200.64.213) ---
                 {
                     name: 'IOT_SERVICE',
                     transport: microservices_1.Transport.TCP,
-                    options: { host: '52.200.64.213', port: 3003 },
+                    options: { host: '52.200.64.213', port: 3011 },
                 },
                 {
                     name: 'DEPOSIT_SERVICE',
                     transport: microservices_1.Transport.TCP,
-                    options: { host: '52.200.64.213', port: 3004 },
+                    options: { host: '52.200.64.213', port: 3002 },
                 },
                 {
                     name: 'AUDIT_SERVICE',
@@ -58,12 +58,12 @@ exports.AppModule = AppModule = tslib_1.__decorate([
                 {
                     name: 'REWARD_SERVICE',
                     transport: microservices_1.Transport.TCP,
-                    options: { host: '127.0.0.1', port: 3006 },
+                    options: { host: '52.200.64.213', port: 3006 },
                 },
                 {
                     name: 'HEALTH_SERVICE',
                     transport: microservices_1.Transport.TCP,
-                    options: { host: '127.0.0.1', port: 3010 },
+                    options: { host: '3.234.125.204', port: 3009 },
                 },
                 {
                     name: 'RECYCLING_SERVICE',
@@ -74,7 +74,7 @@ exports.AppModule = AppModule = tslib_1.__decorate([
                 {
                     name: 'REPORT_SERVICE',
                     transport: microservices_1.Transport.TCP,
-                    options: { host: '100.52.80.163', port: 3009 },
+                    options: { host: '100.52.80.163', port: 3012 },
                 },
                 {
                     name: 'NOTIFICATION_SERVICE',
@@ -210,8 +210,6 @@ let AppController = class AppController {
         console.log('[Gateway] Pidiendo perfil para:', email);
         return (0, rxjs_1.firstValueFrom)(this.userClient.send({ cmd: 'get_user_profile' }, { email }));
     }
-    // apps/api-gateway/src/app/app.controller.ts
-    // apps/api-gateway/src/app/app.controller.ts
     async sumarPuntosBypass(puntos, email) {
         try {
             const respuesta = await (0, rxjs_1.firstValueFrom)(this.userClient.send({ cmd: 'add_points' }, { email, puntos: Number(puntos) }));
@@ -462,6 +460,7 @@ async function bootstrap() {
     await app.listen(3000);
     console.log('🚀 Gateway operando en http://100.50.26.228:3000/api');
 }
+bootstrap();
 
 })();
 

@@ -1,0 +1,15 @@
+FROM node:18-alpine
+WORKDIR /app
+
+# Copiamos los archivos de dependencias desde la raíz
+COPY package*.json ./
+
+# Instalamos todo (incluyendo microservices)
+RUN npm install
+
+# Copiamos el archivo compilado que acabas de generar con NX
+COPY apps/audit-service/dist/main.js .
+
+EXPOSE 3008
+
+CMD ["node", "main.js"]

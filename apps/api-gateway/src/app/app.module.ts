@@ -16,19 +16,19 @@ import { AppService } from './app.service';
       {
         name: 'AUTH_SERVICE', // El que usas con $env:NODE_OPTIONS
         transport: Transport.TCP,
-        options: { host: '3.234.125.204', port: 3002 },
+        options: { host: '3.234.125.204', port: 4001 },
       },
 
       // --- CUENTA 2: IOT Y AUDITORÍA (52.200.64.213) ---
       {
         name: 'IOT_SERVICE',
         transport: Transport.TCP,
-        options: { host: '52.200.64.213', port: 3003 },
+        options: { host: '52.200.64.213', port: 3011 },
       },
       {
         name: 'DEPOSIT_SERVICE',
         transport: Transport.TCP,
-        options: { host: '52.200.64.213', port: 3004 },
+        options: { host: '52.200.64.213', port: 3002 },
       },
       {
         name: 'AUDIT_SERVICE',
@@ -40,12 +40,12 @@ import { AppService } from './app.service';
       {
         name: 'REWARD_SERVICE',
         transport: Transport.TCP,
-        options: { host: '127.0.0.1', port: 3006 },
+        options: { host: '52.200.64.213', port: 3006 },
       },
       {
         name: 'HEALTH_SERVICE',
         transport: Transport.TCP,
-        options: { host: '127.0.0.1', port: 3010 },
+        options: { host: '3.234.125.204', port: 3009 },
       },
       {
         name: 'RECYCLING_SERVICE',
@@ -57,7 +57,7 @@ import { AppService } from './app.service';
       {
         name: 'REPORT_SERVICE',
         transport: Transport.TCP,
-        options: { host: '100.52.80.163', port: 3009 },
+        options: { host: '100.52.80.163', port: 3012 },
       },
       {
         name: 'NOTIFICATION_SERVICE',
